@@ -176,13 +176,10 @@
       box-shadow: 0 5px 15px rgba(15, 76, 129, 0.3);
     }
 
-    /* Analysis Section */
-    .analysis-section {
-      padding: 8rem 5% 4rem;
-      /* Adjusted top padding for fixed navbar */
-      background: transparent;
+    /* General Section Styling */
+    section {
+      padding: 6rem 5%;
       position: relative;
-      flex: 1;
     }
 
     .section-header {
@@ -191,164 +188,187 @@
       text-align: center;
     }
 
+    .section-label {
+      display: inline-block;
+      padding: 0.5rem 1.5rem;
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--accent);
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
     .section-title {
       font-family: 'Playfair Display', serif;
       font-size: 2.5rem;
       font-weight: 700;
       color: var(--dark);
-      margin-bottom: 0.5rem;
+      margin-bottom: 1rem;
     }
 
     .section-description {
       font-size: 1.1rem;
       color: var(--text-secondary);
+      line-height: 1.6;
     }
 
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 2rem;
-      max-width: 1400px;
+    .container {
+      max-width: 1200px;
       margin: 0 auto;
     }
 
-    /* Patient Info Card */
-    .patient-info-header {
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-      padding-bottom: 1rem;
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .patient-info-header h3 {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--primary);
-    }
-
-    .patient-info-grid {
+    /* 1. Header & Patient Info Section */
+    .patient-info-content {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      padding: 3rem;
     }
 
-    .info-item {
-      display: flex;
-      flex-direction: column;
+    .info-block {
+      text-align: center;
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    .info-block:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.8);
     }
 
     .info-label {
+      display: block;
       font-size: 0.85rem;
       color: var(--text-secondary);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.5rem;
       font-weight: 600;
     }
 
     .info-value {
-      font-size: 1rem;
+      font-size: 1.25rem;
       color: var(--primary);
-      font-weight: 500;
+      font-weight: 700;
       font-family: 'DM Sans', sans-serif;
     }
 
-    /* Scan Viewer Card */
+    /* 2. Examination Section */
+    .exam-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    /* Scan Viewer */
     .scan-viewer-container {
-      background: #f8fafc;
-      border: 2px dashed #e2e8f0;
-      border-radius: 16px;
+      background: #000;
+      border-radius: 20px;
       padding: 2rem;
       text-align: center;
-      min-height: 300px;
+      min-height: 500px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-top: 1rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
     }
 
     .scan-viewer-container img {
       max-width: 100%;
-      max-height: 350px;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      max-height: 450px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
     }
 
-    /* Clinical Notes Card */
+    .scan-overlay-text {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+    }
+
+    /* Clinical Notes */
+    .notes-container {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
     .notes-card textarea {
       width: 100%;
       border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 1rem;
-      font-size: 1rem;
+      border-radius: 16px;
+      padding: 1.5rem;
+      font-size: 1.05rem;
       font-family: 'DM Sans', sans-serif;
       resize: vertical;
-      min-height: 200px;
+      min-height: 300px;
       transition: all 0.3s ease;
-      background: #f8fafc;
+      background: #fff;
+      margin-bottom: 2rem;
+      line-height: 1.6;
     }
 
     .notes-card textarea:focus {
       outline: none;
       border-color: var(--primary);
-      background: white;
-      box-shadow: 0 0 0 4px rgba(15, 76, 129, 0.1);
-    }
-
-    .analyze-btn-container {
-      text-align: center;
-      margin: 2rem 0;
+      box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
     }
 
     .analyze-btn {
       width: 100%;
-      padding: 1rem;
+      padding: 1.25rem;
       background: linear-gradient(135deg, var(--primary), var(--primary-light), var(--primary));
       background-size: 200% auto;
       color: white;
       border: none;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 1.1rem;
+      border-radius: 16px;
+      font-weight: 700;
+      font-size: 1.2rem;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(15, 76, 129, 0.3);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .analyze-btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(15, 76, 129, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
       background-position: right center;
     }
 
     .analyze-btn:active {
-      transform: scale(0.98) translateY(0);
+      transform: scale(0.98);
     }
 
-    .analyze-btn:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-      background: #cbd5e1;
-      box-shadow: none;
-    }
-
-    /* Results Card */
+    /* 3. Results Section */
     .results-section {
-      grid-column: 1 / -1;
+      background: white;
       display: none;
-      animation: fadeIn 0.6s ease;
+      /* Hidden by default */
+      padding-top: 4rem;
+      padding-bottom: 6rem;
     }
 
     .results-section.show {
       display: block;
+      animation: slideUp 0.8s ease;
     }
 
-    @keyframes fadeIn {
+    @keyframes slideUp {
       from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(50px);
       }
 
       to {
@@ -359,36 +379,31 @@
 
     .result-header {
       text-align: center;
-      padding-bottom: 2rem;
+      padding-bottom: 3rem;
+      margin-bottom: 3rem;
       border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-      margin-bottom: 2rem;
     }
 
     .result-icon {
-      font-size: 4rem;
-      margin-bottom: 1rem;
+      font-size: 5rem;
+      margin-bottom: 1.5rem;
       display: inline-block;
     }
 
-    .result-positive .result-icon {
-      margin-bottom: 0.5rem;
-    }
-
-    /* Override margin for emojis */
-
     .result-title {
       font-family: 'Playfair Display', serif;
-      font-size: 2rem;
+      font-size: 3rem;
       font-weight: 700;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
     }
 
     .result-description {
-      font-size: 1.1rem;
+      font-size: 1.25rem;
       color: var(--text-secondary);
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
-      line-height: 1.6;
+      line-height: 1.8;
     }
 
     .result-positive-text {
@@ -399,52 +414,74 @@
       color: var(--success);
     }
 
-    .confidence-section {
-      margin: 2rem 0;
+    .confidence-container {
       max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
+      margin: 0 auto 4rem;
     }
 
     .confidence-bar {
       background: #e2e8f0;
-      height: 40px;
-      border-radius: 50px;
+      height: 60px;
+      border-radius: 60px;
       overflow: hidden;
       position: relative;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
     .confidence-fill {
       height: 100%;
-      border-radius: 50px;
+      border-radius: 60px;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-end;
+      /* Text on right */
+      padding-right: 1.5rem;
       color: white;
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 1.2rem;
       width: 0;
       transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-      background: var(--primary);
     }
 
     .result-positive .confidence-fill {
-      background: linear-gradient(90deg, #ef4444, #dc2626);
+      background: linear-gradient(90deg, #ef4444, #b91c1c);
     }
 
     .result-negative .confidence-fill {
-      background: linear-gradient(90deg, #10b981, #059669);
+      background: linear-gradient(90deg, #10b981, #047857);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      max-width: 1000px;
+      margin: 0 auto 4rem;
+    }
+
+    .metric-box {
+      text-align: center;
+      padding: 2rem;
+      background: #f8fafc;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-top: 0.5rem;
     }
 
     .action-buttons {
       display: flex;
-      gap: 1rem;
+      gap: 1.5rem;
       justify-content: center;
-      margin-top: 2rem;
     }
 
     .action-btn {
-      padding: 0.75rem 1.5rem;
+      padding: 1rem 2.5rem;
       border: 2px solid var(--primary);
       background: transparent;
       color: var(--primary);
@@ -452,42 +489,14 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
-      font-size: 0.95rem;
+      font-size: 1.1rem;
     }
 
     .action-btn:hover {
       background: var(--primary);
       color: white;
-      transform: translateY(-2px);
-    }
-
-    /* Disclaimer */
-    .disclaimer-box {
-      background: rgba(245, 158, 11, 0.1);
-      border: 1px solid rgba(245, 158, 11, 0.2);
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-top: 2rem;
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-    }
-
-    .disclaimer-icon {
-      font-size: 1.5rem;
-      color: var(--warning);
-    }
-
-    .disclaimer-text h4 {
-      color: #92400e;
-      margin-bottom: 0.5rem;
-      font-size: 1rem;
-    }
-
-    .disclaimer-text p {
-      color: #92400e;
-      font-size: 0.9rem;
-      margin: 0;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     }
 
     /* Loading Overlay */
@@ -497,8 +506,8 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
       z-index: 2000;
       display: none;
       align-items: center;
@@ -511,18 +520,13 @@
     }
 
     .processing-spinner {
-      width: 60px;
-      height: 60px;
-      border: 5px solid rgba(0, 0, 0, 0.1);
+      width: 80px;
+      height: 80px;
+      border: 6px solid rgba(0, 0, 0, 0.1);
       border-top-color: var(--primary);
       border-radius: 50%;
       animation: spin 1s linear infinite;
-      margin-bottom: 1.5rem;
-    }
-
-    .processing-text h3 {
-      font-size: 1.5rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 2rem;
     }
 
     @keyframes spin {
@@ -535,25 +539,20 @@
     .footer {
       background: var(--dark);
       color: rgba(255, 255, 255, 0.7);
-      padding: 3rem 5%;
+      padding: 4rem 5%;
       text-align: center;
-      margin-top: 4rem;
     }
 
-    .footer-content {
-      font-size: 0.9rem;
-    }
-
-    @media (max-width: 768px) {
-      .nav-links {
-        display: none;
+    @media (max-width: 992px) {
+      .patient-info-content {
+        grid-template-columns: repeat(2, 1fr);
       }
 
-      .dashboard-grid {
+      .exam-grid {
         grid-template-columns: 1fr;
       }
 
-      .patient-info-grid {
+      .metrics-grid {
         grid-template-columns: 1fr;
       }
 
@@ -585,135 +584,129 @@
   <div class="ai-processing-overlay" id="processingOverlay">
     <div class="processing-spinner"></div>
     <div class="processing-text">
-      <h3>Analyzing Brain Scan...</h3>
-      <p>Processing neuroimaging data and cognitive patterns</p>
+      <h3 style="font-size: 1.8rem; margin-bottom: 0.5rem;">Analyzing High-Res Data...</h3>
+      <p style="color: var(--text-secondary);">Identifying cognitive patterns and anomalies</p>
     </div>
   </div>
 
-  <!-- Main Content -->
-  <section class="analysis-section">
+  <!-- MAIN CONTENT -->
+
+  <!-- 1. Header & Patient Info -->
+  <section class="patient-section" style="padding-top: 8rem;">
     <div class="section-header">
-      <h2 class="section-title">Analysis Dashboard</h2>
-      <p class="section-description">Comprehensive AI-powered Alzheimer's risk assessment</p>
+      <span class="section-label">Analysis Dashboard</span>
+      <h2 class="section-title">Patient Context</h2>
     </div>
 
-    <div class="dashboard-grid">
-      <!-- Left Column -->
-      <div class="col-left">
-        <!-- Patient Info -->
-        <div class="glass-card" style="padding: 2rem; margin-bottom: 2rem;">
-          <div class="patient-info-header">
-            <span style="font-size: 1.5rem;">👤</span>
-            <h3>Patient Information</h3>
-          </div>
-          <div class="patient-info-grid">
-            <div class="info-item">
-              <span class="info-label">Patient Name</span>
-              <span class="info-value" id="displayName">-</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Email Address</span>
-              <span class="info-value" id="displayEmail">-</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Scan Date</span>
-              <span class="info-value" id="displayDate">-</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Scan Type</span>
-              <span class="info-value" id="displayScanType">-</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Contact Number</span>
-              <span class="info-value" id="displayPhone">-</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Submission ID</span>
-              <span class="info-value" id="submissionId">-</span>
-            </div>
-          </div>
+    <div class="container">
+      <div class="glass-card patient-info-content">
+        <div class="info-block">
+          <span class="info-label">Patient Name</span>
+          <span class="info-value" id="displayName">-</span>
         </div>
-
-        <!-- Scan Viewer -->
-        <div class="glass-card" style="padding: 2rem;">
-          <div class="patient-info-header">
-            <span style="font-size: 1.5rem;">🖼️</span>
-            <h3>Brain Scan Image</h3>
-          </div>
-          <div class="scan-viewer-container" id="scanViewerContainer">
-            <img id="scanImage" alt="Brain Scan" style="display:none;">
-            <p style="color: var(--text-secondary);" id="noScanMessage">No scan image uploaded</p>
-          </div>
+        <div class="info-block">
+          <span class="info-label">Submission ID</span>
+          <span class="info-value" id="submissionId">-</span>
+        </div>
+        <div class="info-block">
+          <span class="info-label">Scan Type</span>
+          <span class="info-value" id="displayScanType">-</span>
+        </div>
+        <div class="info-block">
+          <span class="info-label">Scan Date</span>
+          <span class="info-value" id="displayDate">-</span>
         </div>
       </div>
+    </div>
+  </section>
 
-      <!-- Right Column -->
-      <div class="col-right">
-        <!-- Clinical Notes -->
-        <div class="glass-card" style="padding: 2rem; height: 100%;">
-          <div class="patient-info-header">
-            <span style="font-size: 1.5rem;">📝</span>
-            <h3>Clinical Assessment</h3>
+  <!-- 2. Examination (Scan + Clinical) -->
+  <section class="examination-section" style="background: rgba(0,0,0,0.02);">
+    <div class="section-header">
+      <span class="section-label">Medical Examination</span>
+      <h2 class="section-title">Scan Analysis & Notes</h2>
+      <p class="section-description">Review the uploaded imaging data and provide clinical context.</p>
+    </div>
+
+    <div class="container">
+      <div class="exam-grid">
+        <!-- Left: Viewer -->
+        <div class="scan-viewer-wrapper">
+          <div class="scan-viewer-container" id="scanViewerContainer">
+            <img id="scanImage" alt="Brain Scan" style="display:none;">
+            <p style="color: rgba(255,255,255,0.7);" id="noScanMessage">No scan image uploaded</p>
+            <div class="scan-overlay-text">High-Resolution Viewer Active</div>
           </div>
-          <p style="margin-bottom: 1rem; font-size: 0.95rem; color: var(--text-secondary);">
-            Please enter patient symptoms, cognitive observations, and behavioral changes for context-aware analysis.
-          </p>
-          <textarea id="clinicalNotes"
-            placeholder="Example symptoms:&#10;• Short-term memory loss&#10;• Difficulty with familiar tasks&#10;• Confusion with time and place&#10;• Challenges in planning or problem-solving"></textarea>
+        </div>
 
-          <div class="analyze-btn-container">
+        <!-- Right: Notes & Action -->
+        <div class="notes-container">
+          <div class="glass-card" style="padding: 2rem;">
+            <h3 style="margin-bottom: 1.5rem; font-size: 1.4rem;">Clinical Assessment</h3>
+            <p style="margin-bottom: 1.5rem; color: var(--text-secondary); font-size: 0.95rem;">
+              Document observance of memory loss, disorientation, or behavioral changes to aid the AI model.
+            </p>
+            <textarea id="clinicalNotes" class="notes-card" placeholder="Patient exhibits signs of..."></textarea>
+
             <button class="analyze-btn" id="analyzeBtn" onclick="startAnalysis()">
-              Run AI Analysis
+              Initiate AI Diagnosis
             </button>
           </div>
         </div>
       </div>
+    </div>
+  </section>
 
-      <!-- Results Section (Full Width) -->
-      <div class="results-section glass-card" id="resultsCard" style="padding: 3rem; margin-top: 2rem;">
+  <!-- 3. Results (Hidden initially) -->
+  <section class="results-section" id="resultsSection">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Diagnosis Report</span>
+        <h2 class="section-title">AI Analysis Results</h2>
+      </div>
+
+      <div class="glass-card" id="resultsCard" style="padding: 4rem;">
+        <!-- Result Header -->
         <div class="result-header">
           <div class="result-icon" id="resultIcon"></div>
           <h3 class="result-title" id="resultTitle"></h3>
           <p class="result-description" id="resultDescription"></p>
         </div>
 
-        <div class="confidence-section">
-          <div class="info-label" style="margin-bottom: 0.5rem; text-align: center;">AI Confidence Level</div>
+        <!-- Confidence Bar -->
+        <div class="confidence-container">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+            <span class="info-label">Model Confidence</span>
+            <span class="info-label" id="confidenceValueText">0%</span>
+          </div>
           <div class="confidence-bar">
             <div class="confidence-fill" id="confidenceFill">
-              <span id="confidenceText" style="margin-left: 1rem;">0%</span>
+              <span id="confidenceText">Analysis Complete</span>
             </div>
           </div>
         </div>
 
-        <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr); margin-top: 2rem; gap: 1rem;">
-          <div style="background: rgba(0,0,0,0.03); padding: 1.5rem; border-radius: 12px; text-align: center;">
-            <div class="info-label">Analysis Date</div>
-            <div class="info-value" id="analysisDate">-</div>
+        <!-- Metrics -->
+        <div class="metrics-grid">
+          <div class="metric-box">
+            <div class="info-label">Processing Duration</div>
+            <div class="metric-value" id="processingTime">-</div>
           </div>
-          <div style="background: rgba(0,0,0,0.03); padding: 1.5rem; border-radius: 12px; text-align: center;">
-            <div class="info-label">Processing Time</div>
-            <div class="info-value" id="processingTime">-</div>
+          <div class="metric-box">
+            <div class="info-label">Date of Analysis</div>
+            <div class="metric-value" id="analysisDate">-</div>
           </div>
-          <div style="background: rgba(0,0,0,0.03); padding: 1.5rem; border-radius: 12px; text-align: center;">
-            <div class="info-label">Model Version</div>
-            <div class="info-value">v3.2.1</div>
-          </div>
-        </div>
-
-        <div class="disclaimer-box">
-          <div class="disclaimer-icon">⚠️</div>
-          <div class="disclaimer-text">
-            <h4>Medical Disclaimer</h4>
-            <p>This AI-powered analysis is for research and clinical decision support only. It does not replace
-              professional medical diagnosis. Consult a qualified professional for evaluation.</p>
+          <div class="metric-box">
+            <div class="info-label">Neural Net Version</div>
+            <div class="metric-value">v3.2.1 (DeepResNet)</div>
           </div>
         </div>
 
+        <!-- Actions -->
         <div class="action-buttons">
-          <button class="action-btn" onclick="downloadReport()">Download Report</button>
-          <button class="action-btn" onclick="printReport()">Print Results</button>
-          <button class="action-btn" onclick="resetAnalysis()">New Analysis</button>
+          <button class="action-btn" onclick="downloadReport()">Download PDF Report</button>
+          <button class="action-btn" onclick="printReport()">Print Summary</button>
+          <button class="action-btn" onclick="resetAnalysis()">New Examination</button>
         </div>
       </div>
     </div>
@@ -722,164 +715,121 @@
   <!-- Footer -->
   <footer class="footer">
     <div class="footer-content">
-      © 2024 MindScan AI.All rights reserved. | intended for academic research only.
+      © 2024 MindScan AI. Research Use Only.
     </div>
   </footer>
 
   <script>
-    // Navbar scroll effect
+    // Navbar scroll
     window.addEventListener('scroll', () => {
       const navbar = document.querySelector('.navbar');
-      if (window.scrollY > 50) {
-        navbar.classList.add('scrolled');
-      } else {
-        navbar.classList.remove('scrolled');
-      }
+      navbar.classList.toggle('scrolled', window.scrollY > 50);
     });
 
     let analysisStartTime;
 
-    // Load patient data from sessionStorage
+    // Load Data
     window.onload = function () {
       loadPatientData();
       loadScanImage();
     };
 
     function loadPatientData() {
-      // Retrieve patient information
-      const patientData = {
-        name: sessionStorage.getItem('patientName') || 'Not Provided',
-        email: sessionStorage.getItem('patientEmail') || 'Not Provided',
-        date: sessionStorage.getItem('scanDate') || 'Not Provided',
-        scanType: sessionStorage.getItem('scanType') || 'Not Provided',
-        phone: sessionStorage.getItem('patientPhone') || 'Not Provided'
+      const data = {
+        name: sessionStorage.getItem('patientName') || 'N/A',
+        date: sessionStorage.getItem('scanDate') || 'N/A',
+        type: sessionStorage.getItem('scanType') || 'MRI',
       };
 
-      // Display patient information
-      document.getElementById('displayName').textContent = patientData.name;
-      document.getElementById('displayEmail').textContent = patientData.email;
-      document.getElementById('displayDate').textContent = patientData.date;
-      document.getElementById('displayScanType').textContent = patientData.scanType;
-      document.getElementById('displayPhone').textContent = patientData.phone;
-
-      // Generate submission ID
-      const submissionId = 'MS-' + Date.now().toString().slice(-8);
-      document.getElementById('submissionId').textContent = submissionId;
+      document.getElementById('displayName').textContent = data.name;
+      document.getElementById('displayDate').textContent = data.date;
+      document.getElementById('displayScanType').textContent = data.type;
+      document.getElementById('submissionId').textContent = 'MS-' + Date.now().toString().slice(-8);
     }
 
     function loadScanImage() {
       const scanData = sessionStorage.getItem('scanImage');
-      const scanImg = document.getElementById('scanImage');
-      const noScanMsg = document.getElementById('noScanMessage');
+      const img = document.getElementById('scanImage');
+      const msg = document.getElementById('noScanMessage');
 
       if (scanData) {
-        scanImg.src = scanData;
-        scanImg.style.display = 'block';
-        noScanMsg.style.display = 'none';
+        img.src = scanData;
+        img.style.display = 'block';
+        msg.style.display = 'none';
       }
     }
 
+    // Analysis Logic
     function startAnalysis() {
       const notes = document.getElementById('clinicalNotes').value.trim();
-      const btn = document.getElementById('analyzeBtn');
-
       if (!notes) {
-        alert('Please enter clinical assessment notes before analyzing.');
+        alert('Please enter clinical notes to proceed.');
         return;
       }
 
-      // Show processing overlay
-      document.getElementById('processingOverlay').classList.add('active');
-      btn.disabled = true;
+      // UI Feedback
+      const btn = document.getElementById('analyzeBtn');
+      const overlay = document.getElementById('processingOverlay');
 
+      btn.disabled = true;
+      overlay.classList.add('active');
       analysisStartTime = Date.now();
 
-      // Simulate AI processing (2.5 seconds)
+      // Simulate AI
       setTimeout(() => {
         performAnalysis(notes);
-        document.getElementById('processingOverlay').classList.remove('active');
+        overlay.classList.remove('active');
         btn.disabled = false;
+
+        // Scroll to results
+        const resultsSection = document.getElementById('resultsSection');
+        resultsSection.classList.add('show');
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
       }, 2500);
     }
 
     function performAnalysis(notes) {
       const resultsCard = document.getElementById('resultsCard');
-      const resultIcon = document.getElementById('resultIcon');
-      const resultTitle = document.getElementById('resultTitle');
-      const resultDescription = document.getElementById('resultDescription');
-      const confidenceFill = document.getElementById('confidenceFill');
-      const confidenceText = document.getElementById('confidenceText');
+      const icon = document.getElementById('resultIcon');
+      const title = document.getElementById('resultTitle');
+      const desc = document.getElementById('resultDescription');
+      const fill = document.getElementById('confidenceFill');
+      const confText = document.getElementById('confidenceValueText');
 
-      // Keyword-based analysis logic (simulation)
-      const keywords = ['memory', 'confusion', 'disorientation', 'cognitive', 'dementia',
-        'forget', 'lost', 'problem-solving', 'planning', 'mood'];
-      const notesLower = notes.toLowerCase();
-      const matchCount = keywords.filter(kw => notesLower.includes(kw)).length;
+      // Simple Keyword Logic
+      const keywords = ['memory', 'confusion', 'dementia', 'lost', 'forget'];
+      const isRisk = keywords.some(kw => notes.toLowerCase().includes(kw));
+      const confidence = isRisk ? 88 : 92;
 
-      const isRisk = matchCount >= 3;
-      const confidence = isRisk
-        ? 75 + Math.floor(Math.random() * 18)
-        : 83 + Math.floor(Math.random() * 12);
-
-      // Apply result class for styling hooks
       if (isRisk) {
-        resultsCard.classList.add('result-positive');
-        resultsCard.classList.remove('result-negative');
-        resultIcon.textContent = '⚠️';
-        resultTitle.textContent = 'Potential Alzheimer\'s Indicators Detected';
-        resultTitle.classList.add('result-positive-text');
-        resultTitle.classList.remove('result-negative-text');
-        resultDescription.textContent = 'The AI model has identified cognitive patterns and symptoms commonly associated with Alzheimer\'s disease. Further comprehensive clinical evaluation is strongly recommended.';
+        resultsCard.className = 'glass-card result-positive';
+        icon.textContent = '⚠️';
+        title.textContent = 'Potential Anomalies Detected';
+        title.className = 'result-title result-positive-text';
+        desc.textContent = 'The model identified patterns consistent with early-stage cognitive decline. Recommended: Follow-up PET scan.';
       } else {
-        resultsCard.classList.add('result-negative');
-        resultsCard.classList.remove('result-positive');
-        resultIcon.textContent = '✅';
-        resultTitle.textContent = 'No Significant Risk Indicators Detected';
-        resultTitle.classList.add('result-negative-text');
-        resultTitle.classList.remove('result-positive-text');
-        resultDescription.textContent = 'The AI analysis did not detect significant patterns associated with Alzheimer\'s disease based on the provided clinical information. Regular monitoring is still advised.';
+        resultsCard.className = 'glass-card result-negative';
+        icon.textContent = '✅';
+        title.textContent = 'No Significant Finds';
+        title.className = 'result-title result-negative-text';
+        desc.textContent = 'No structural anomalies detected. Standard annual check-up recommended.';
       }
 
-      // Show results
-      resultsCard.classList.add('show');
+      // Metrics
+      document.getElementById('processingTime').textContent = ((Date.now() - analysisStartTime) / 1000).toFixed(1) + 's';
+      document.getElementById('analysisDate').textContent = new Date().toLocaleDateString();
 
-      // Animate confidence bar
+      // Animate Bar
       setTimeout(() => {
-        confidenceFill.style.width = confidence + '%';
-        confidenceText.textContent = confidence + '% Confidence';
-      }, 200);
-
-      // Set analysis details
-      const now = new Date();
-      document.getElementById('analysisDate').textContent =
-        now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-
-      const duration = ((Date.now() - analysisStartTime) / 1000).toFixed(1);
-      document.getElementById('processingTime').textContent = duration + 's';
-
-      // Scroll to results
-      setTimeout(() => {
-        resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 300);
+        fill.style.width = confidence + '%';
+        confText.textContent = confidence + '%';
+      }, 100);
     }
 
-    function downloadReport() {
-      alert('Report download initiated...');
-    }
-
-    function printReport() {
-      window.print();
-    }
-
+    function downloadReport() { alert('Downloading PDF...'); }
+    function printReport() { window.print(); }
     function resetAnalysis() {
-      if (confirm('Start a new analysis? Current results will be cleared.')) {
-        document.getElementById('clinicalNotes').value = '';
-        document.getElementById('resultsCard').classList.remove('show');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        // Reset styling classes
-        document.getElementById('resultsCard').classList.remove('result-positive', 'result-negative');
-        document.getElementById('confidenceFill').style.width = '0';
-      }
+      if (confirm('Start over?')) location.reload();
     }
   </script>
 </body>
