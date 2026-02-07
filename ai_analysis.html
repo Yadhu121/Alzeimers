@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>MindScan AI | Analysis Results</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/animate.css">
+  <link rel="stylesheet" href="css/tooplate-style.css">
+
+  <style>
+    /* Main Background */
+    body {
+      background: #f9f9f9;
+    }
+
+    /* Navigation - Match your existing nav */
+    .navbar {
+      background: #ffffff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Main Container */
+    .analysis-section {
+      padding: 100px 0 80px;
+    }
+
+    /* Page Title */
+    .page-title {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .page-title h2 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #232323;
+      margin-bottom: 15px;
+    }
+
+    .page-title p {
+      color: #909090;
+      font-size: 16px;
+    }
+
+    /* Patient Info Card */
+    .patient-info-card {
+      background: #fff;
+      border-radius: 6px;
+      padding: 30px;
+      box-shadow: 0 2px 48px 0 rgba(0, 0, 0, 0.06);
+      margin-bottom: 30px;
+    }
+
+    .patient-info-header {
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+
+    .patient-info-header h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #232323;
+      margin: 0;
+    }
+
+    .patient-info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-label {
+      font-size: 12px;
+      color: #909090;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .info-value {
+      font-size: 16px;
+      color: #232323;
+      font-weight: 500;
+    }
+
+    /* Scan Viewer Card */
+    .scan-card {
+      background: #fff;
+      border-radius: 6px;
+      padding: 30px;
+      box-shadow: 0 2px 48px 0 rgba(0, 0, 0, 0.06);
+      margin-bottom: 30px;
+    }
+
+    .scan-card h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #232323;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .scan-viewer-container {
+      background: #f8f8f8;
+      border: 2px dashed #ddd;
+      border-radius: 6px;
+      padding: 20px;
+      text-align: center;
+      min-height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .scan-viewer-container img {
+      max-width: 100%;
+      max-height: 350px;
+      border-radius: 6px;
+    }
+
+    /* Clinical Notes Card */
+    .notes-card {
+      background: #fff;
+      border-radius: 6px;
+      padding: 30px;
+      box-shadow: 0 2px 48px 0 rgba(0, 0, 0, 0.06);
+      margin-bottom: 30px;
+    }
+
+    .notes-card h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #232323;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .notes-card textarea {
+      width: 100%;
+      border: 1px solid #f0f0f0;
+      border-radius: 6px;
+      padding: 15px;
+      font-size: 14px;
+      line-height: 1.8;
+      resize: vertical;
+      min-height: 200px;
+      transition: border-color 0.3s ease;
+    }
+
+    .notes-card textarea:focus {
+      outline: none;
+      border-color: #a5c422;
+    }
+
+    /* Analyze Button */
+    .analyze-btn-container {
+      text-align: center;
+      margin: 30px 0;
+    }
+
+    .analyze-btn {
+      background: #a5c422;
+      color: #ffffff;
+      border: none;
+      border-radius: 50px;
+      padding: 18px 50px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(165, 196, 34, 0.3);
+    }
+
+    .analyze-btn:hover {
+      background: #92af1f;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(165, 196, 34, 0.4);
+    }
+
+    .analyze-btn:disabled {
+      background: #d0d0d0;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .analyze-btn .fa {
+      margin-right: 8px;
+    }
+
+    /* AI Processing Animation */
+    .ai-processing-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ai-processing-overlay.active {
+      display: flex;
+    }
+
+    .processing-content {
+      text-align: center;
+    }
+
+    .brain-pulse {
+      font-size: 80px;
+      color: #a5c422;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .processing-content h3 {
+      font-size: 24px;
+      color: #232323;
+      margin: 20px 0 10px;
+    }
+
+    .processing-content p {
+      color: #909090;
+      font-size: 16px;
+    }
+
+    /* Results Card */
+    .results-card {
+      background: #fff;
+      border-radius: 6px;
+      padding: 40px;
+      box-shadow: 0 2px 48px 0 rgba(0, 0, 0, 0.06);
+      margin-top: 30px;
+      display: none;
+    }
+
+    .results-card.show {
+      display: block;
+      animation: fadeInUp 0.6s ease;
+    }
+
+    .result-header {
+      text-align: center;
+      padding-bottom: 30px;
+      border-bottom: 2px solid #f0f0f0;
+      margin-bottom: 30px;
+    }
+
+    .result-icon {
+      font-size: 70px;
+      margin-bottom: 20px;
+    }
+
+    .result-positive .result-icon {
+      color: #e74c3c;
+    }
+
+    .result-negative .result-icon {
+      color: #2ecc71;
+    }
+
+    .result-header h3 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+
+    .result-positive .result-header h3 {
+      color: #e74c3c;
+    }
+
+    .result-negative .result-header h3 {
+      color: #2ecc71;
+    }
+
+    .result-header p {
+      font-size: 16px;
+      color: #707070;
+      line-height: 1.8;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Confidence Bar */
+    .confidence-section {
+      margin: 30px 0;
+    }
+
+    .confidence-label {
+      font-size: 14px;
+      color: #909090;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .confidence-bar {
+      background: #f0f0f0;
+      height: 50px;
+      border-radius: 50px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .confidence-fill {
+      height: 100%;
+      border-radius: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 18px;
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 0;
+    }
+
+    .result-positive .confidence-fill {
+      background: linear-gradient(90deg, #e74c3c, #c0392b);
+    }
+
+    .result-negative .confidence-fill {
+      background: linear-gradient(90deg, #2ecc71, #27ae60);
+    }
+
+    /* Analysis Details */
+    .analysis-details {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .detail-box {
+      background: #f8f8f8;
+      padding: 20px;
+      border-radius: 6px;
+      text-align: center;
+      border-left: 4px solid #a5c422;
+    }
+
+    .detail-label {
+      font-size: 12px;
+      color: #909090;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .detail-value {
+      font-size: 20px;
+      color: #232323;
+      font-weight: 700;
+    }
+
+    /* Disclaimer */
+    .disclaimer {
+      background: #fff9e6;
+      border-left: 4px solid #ffc107;
+      padding: 20px;
+      border-radius: 6px;
+      margin-top: 30px;
+    }
+
+    .disclaimer h4 {
+      font-size: 16px;
+      color: #232323;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .disclaimer p {
+      font-size: 14px;
+      color: #707070;
+      line-height: 1.8;
+      margin: 0;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .action-btn {
+      padding: 12px 30px;
+      border: 2px solid #a5c422;
+      background: white;
+      color: #a5c422;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .action-btn:hover {
+      background: #a5c422;
+      color: white;
+    }
+
+    .action-btn .fa {
+      margin-right: 8px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .patient-info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .analysis-details {
+        grid-template-columns: 1fr;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .action-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVIGATION (Match your existing nav) -->
+<section class="navbar navbar-default navbar-static-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="icon icon-bar"></span>
+        <span class="icon icon-bar"></span>
+        <span class="icon icon-bar"></span>
+      </button>
+      <a href="index.html" class="navbar-brand">
+        <i class="fa fa-brain"></i> MindScan AI
+      </a>
+    </div>
+    <div class="collapse navbar-collapse">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="index.html#top">Home</a></li>
+        <li><a href="index.html#about">Project Overview</a></li>
+        <li><a href="index.html#team">Research Team</a></li>
+        <li><a href="index.html#news">Research Updates</a></li>
+        <li class="appointment-btn">
+          <a href="index.html#appointment">Upload New Scan</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- AI PROCESSING OVERLAY -->
+<div class="ai-processing-overlay" id="processingOverlay">
+  <div class="processing-content">
+    <div class="brain-pulse">
+      <i class="fa fa-brain"></i>
+    </div>
+    <h3>AI Analysis in Progress</h3>
+    <p>Processing neuroimaging data and cognitive patterns...</p>
+  </div>
+</div>
+
+<!-- MAIN ANALYSIS SECTION -->
+<section class="analysis-section">
+  <div class="container">
+    
+    <!-- Page Title -->
+    <div class="page-title wow fadeInDown" data-wow-delay="0.2s">
+      <h2>AI-Powered Analysis Dashboard</h2>
+      <p>Comprehensive Alzheimer's Risk Assessment</p>
+    </div>
+
+    <div class="row">
+      
+      <!-- Left Column -->
+      <div class="col-md-6">
+        
+        <!-- Patient Information -->
+        <div class="patient-info-card wow fadeInLeft" data-wow-delay="0.3s">
+          <div class="patient-info-header">
+            <h3><i class="fa fa-user"></i> Patient Information</h3>
+          </div>
+          <div class="patient-info-grid">
+            <div class="info-item">
+              <span class="info-label">Patient Name</span>
+              <span class="info-value" id="displayName">-</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Email Address</span>
+              <span class="info-value" id="displayEmail">-</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Scan Date</span>
+              <span class="info-value" id="displayDate">-</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Scan Type</span>
+              <span class="info-value" id="displayScanType">-</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Contact Number</span>
+              <span class="info-value" id="displayPhone">-</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Submission ID</span>
+              <span class="info-value" id="submissionId">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Brain Scan Viewer -->
+        <div class="scan-card wow fadeInLeft" data-wow-delay="0.4s">
+          <h3><i class="fa fa-image"></i> Brain Scan Image</h3>
+          <div class="scan-viewer-container" id="scanViewerContainer">
+            <img id="scanImage" alt="Brain Scan" style="display:none;">
+            <p style="color: #909090;" id="noScanMessage">No scan image uploaded</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column -->
+      <div class="col-md-6">
+        
+        <!-- Clinical Notes -->
+        <div class="notes-card wow fadeInRight" data-wow-delay="0.3s">
+          <h3><i class="fa fa-stethoscope"></i> Clinical Assessment</h3>
+          <textarea 
+            id="clinicalNotes" 
+            placeholder="Enter patient symptoms, cognitive observations, behavioral changes...&#10;&#10;Example:&#10;• Short-term memory loss&#10;• Difficulty with familiar tasks&#10;• Confusion with time and place&#10;• Challenges in planning or problem-solving&#10;• Mood and personality changes"></textarea>
+        </div>
+
+        <!-- Analyze Button -->
+        <div class="analyze-btn-container wow fadeInUp" data-wow-delay="0.4s">
+          <button class="analyze-btn" id="analyzeBtn" onclick="startAnalysis()">
+            <i class="fa fa-brain"></i> Run AI Analysis
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Results Section -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="results-card" id="resultsCard">
+          
+          <!-- Result Header -->
+          <div class="result-header">
+            <div class="result-icon" id="resultIcon"></div>
+            <h3 id="resultTitle"></h3>
+            <p id="resultDescription"></p>
+          </div>
+
+          <!-- Confidence Bar -->
+          <div class="confidence-section">
+            <div class="confidence-label">AI Confidence Level</div>
+            <div class="confidence-bar">
+              <div class="confidence-fill" id="confidenceFill">
+                <span id="confidenceText">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Analysis Details -->
+          <div class="analysis-details">
+            <div class="detail-box">
+              <div class="detail-label">Analysis Date</div>
+              <div class="detail-value" id="analysisDate">-</div>
+            </div>
+            <div class="detail-box">
+              <div class="detail-label">Processing Time</div>
+              <div class="detail-value" id="processingTime">-</div>
+            </div>
+            <div class="detail-box">
+              <div class="detail-label">Model Version</div>
+              <div class="detail-value">v3.2.1</div>
+            </div>
+          </div>
+
+          <!-- Disclaimer -->
+          <div class="disclaimer">
+            <h4><i class="fa fa-exclamation-triangle"></i> Medical Disclaimer</h4>
+            <p>
+              This AI-powered analysis is designed for research and educational purposes only. 
+              It should not be used as a substitute for professional medical diagnosis, treatment, 
+              or advice. Please consult with qualified healthcare professionals for proper medical 
+              evaluation and care.
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <button class="action-btn" onclick="downloadReport()">
+              <i class="fa fa-download"></i> Download Report
+            </button>
+            <button class="action-btn" onclick="printReport()">
+              <i class="fa fa-print"></i> Print Results
+            </button>
+            <button class="action-btn" onclick="resetAnalysis()">
+              <i class="fa fa-refresh"></i> New Analysis
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer data-stellar-background-ratio="5">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 col-sm-12 border-top">
+        <p style="text-align:center;">
+          Disclaimer: MindScan AI is intended for academic research and clinical
+          decision support only and does not replace professional medical diagnosis.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="js/jquery.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/wow.min.js"></script>
+<script src="js/custom.js"></script>
+
+<script>
+  // Initialize WOW.js
+  new WOW().init();
+
+  let analysisStartTime;
+
+  // Load patient data from sessionStorage
+  window.onload = function() {
+    loadPatientData();
+    loadScanImage();
+  };
+
+  function loadPatientData() {
+    // Retrieve patient information
+    const patientData = {
+      name: sessionStorage.getItem('patientName') || 'Not Provided',
+      email: sessionStorage.getItem('patientEmail') || 'Not Provided',
+      date: sessionStorage.getItem('scanDate') || 'Not Provided',
+      scanType: sessionStorage.getItem('scanType') || 'Not Provided',
+      phone: sessionStorage.getItem('patientPhone') || 'Not Provided'
+    };
+
+    // Display patient information
+    document.getElementById('displayName').textContent = patientData.name;
+    document.getElementById('displayEmail').textContent = patientData.email;
+    document.getElementById('displayDate').textContent = patientData.date;
+    document.getElementById('displayScanType').textContent = patientData.scanType;
+    document.getElementById('displayPhone').textContent = patientData.phone;
+    
+    // Generate submission ID
+    const submissionId = 'MS-' + Date.now().toString().slice(-8);
+    document.getElementById('submissionId').textContent = submissionId;
+  }
+
+  function loadScanImage() {
+    const scanData = sessionStorage.getItem('scanImage');
+    const scanImg = document.getElementById('scanImage');
+    const noScanMsg = document.getElementById('noScanMessage');
+
+    if (scanData) {
+      scanImg.src = scanData;
+      scanImg.style.display = 'block';
+      noScanMsg.style.display = 'none';
+    }
+  }
+
+  function startAnalysis() {
+    const notes = document.getElementById('clinicalNotes').value.trim();
+    const btn = document.getElementById('analyzeBtn');
+
+    if (!notes) {
+      alert('Please enter clinical assessment notes before analyzing.');
+      return;
+    }
+
+    // Show processing overlay
+    document.getElementById('processingOverlay').classList.add('active');
+    btn.disabled = true;
+
+    analysisStartTime = Date.now();
+
+    // Simulate AI processing (2.5 seconds)
+    setTimeout(() => {
+      performAnalysis(notes);
+      document.getElementById('processingOverlay').classList.remove('active');
+      btn.disabled = false;
+    }, 2500);
+  }
+
+  function performAnalysis(notes) {
+    const resultsCard = document.getElementById('resultsCard');
+    const resultIcon = document.getElementById('resultIcon');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultDescription = document.getElementById('resultDescription');
+    const confidenceFill = document.getElementById('confidenceFill');
+    const confidenceText = document.getElementById('confidenceText');
+
+    // Keyword-based analysis
+    const keywords = ['memory', 'confusion', 'disorientation', 'cognitive', 'dementia', 
+                     'forget', 'lost', 'problem-solving', 'planning', 'mood'];
+    const notesLower = notes.toLowerCase();
+    const matchCount = keywords.filter(kw => notesLower.includes(kw)).length;
+
+    const isRisk = matchCount >= 3;
+    const confidence = isRisk 
+      ? 75 + Math.floor(Math.random() * 18) 
+      : 83 + Math.floor(Math.random() * 12);
+
+    // Apply result class
+    resultsCard.className = 'results-card show ' + (isRisk ? 'result-positive' : 'result-negative');
+
+    // Set result content
+    if (isRisk) {
+      resultIcon.innerHTML = '<i class="fa fa-exclamation-circle"></i>';
+      resultTitle.textContent = 'Potential Alzheimer\'s Indicators Detected';
+      resultDescription.textContent = 'The AI model has identified cognitive patterns and symptoms commonly associated with Alzheimer\'s disease based on the clinical assessment provided. Further comprehensive clinical evaluation and diagnostic testing are strongly recommended.';
+    } else {
+      resultIcon.innerHTML = '<i class="fa fa-check-circle"></i>';
+      resultTitle.textContent = 'No Significant Risk Indicators Detected';
+      resultDescription.textContent = 'The AI analysis did not detect significant patterns associated with Alzheimer\'s disease based on the provided clinical information. However, regular cognitive monitoring and follow-up assessments are still advised as part of preventive healthcare.';
+    }
+
+    // Animate confidence bar
+    setTimeout(() => {
+      confidenceFill.style.width = confidence + '%';
+      confidenceText.textContent = confidence + '% Confidence';
+    }, 200);
+
+    // Set analysis details
+    const now = new Date();
+    document.getElementById('analysisDate').textContent = 
+      now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    
+    const duration = ((Date.now() - analysisStartTime) / 1000).toFixed(1);
+    document.getElementById('processingTime').textContent = duration + 's';
+
+    // Scroll to results
+    setTimeout(() => {
+      resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+  }
+
+  function downloadReport() {
+    alert('Report download functionality: This would generate a PDF report with all analysis results, patient information, and AI findings.');
+  }
+
+  function printReport() {
+    window.print();
+  }
+
+  function resetAnalysis() {
+    if (confirm('Are you sure you want to start a new analysis? Current results will be cleared.')) {
+      document.getElementById('clinicalNotes').value = '';
+      document.getElementById('resultsCard').classList.remove('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+</script>
+
+</body>
+</html>
