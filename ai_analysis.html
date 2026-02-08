@@ -620,35 +620,25 @@
     </div>
   </section>
 
-  <!-- 2. Examination (Scan + Clinical) -->
+  <!-- 2. Examination (Scan Analysis) -->
   <section class="examination-section" style="background: rgba(0,0,0,0.02);">
     <div class="section-header">
       <span class="section-label">Medical Examination</span>
-      <h2 class="section-title">Scan Analysis & Notes</h2>
-      <p class="section-description">Review the uploaded imaging data and provide clinical context.</p>
+      <h2 class="section-title">Scan Analysis</h2>
+      <p class="section-description">Review the uploaded imaging data and initiate the AI diagnostic model.</p>
     </div>
 
     <div class="container">
-      <div class="exam-grid">
-        <!-- Left: Viewer -->
+      <div class="exam-grid" style="grid-template-columns: 1fr; max-width: 900px; margin: 0 auto;">
+        <!-- Center: Viewer -->
         <div class="scan-viewer-wrapper">
-          <div class="scan-viewer-container" id="scanViewerContainer">
+          <div class="scan-viewer-container" id="scanViewerContainer" style="cursor: crosshair;">
             <img id="scanImage" alt="Brain Scan" style="display:none;">
             <p style="color: rgba(255,255,255,0.7);" id="noScanMessage">No scan image uploaded</p>
-            <div class="scan-overlay-text">High-Resolution Viewer Active</div>
           </div>
-        </div>
 
-        <!-- Right: Notes & Action -->
-        <div class="notes-container">
-          <div class="glass-card" style="padding: 2rem;">
-            <h3 style="margin-bottom: 1.5rem; font-size: 1.4rem;">Clinical Assessment</h3>
-            <p style="margin-bottom: 1.5rem; color: var(--text-secondary); font-size: 0.95rem;">
-              Document observance of memory loss, disorientation, or behavioral changes to aid the AI model.
-            </p>
-            <textarea id="clinicalNotes" class="notes-card" placeholder="Patient exhibits signs of..."></textarea>
-
-            <button class="analyze-btn" id="analyzeBtn" onclick="startAnalysis()">
+          <div style="text-align: center; margin-top: 2rem;">
+            <button class="analyze-btn" id="analyzeBtn" onclick="startAnalysis()" style="max-width: 400px;">
               Initiate AI Diagnosis
             </button>
           </div>
@@ -658,13 +648,8 @@
   </section>
 
   <!-- 3. Results (Hidden initially) -->
-  <section class="results-section" id="resultsSection">
+  <section class="results-section" id="resultsSection" style="padding-top: 2rem;">
     <div class="container">
-      <div class="section-header">
-        <span class="section-label">Diagnosis Report</span>
-        <h2 class="section-title">AI Analysis Results</h2>
-      </div>
-
       <div class="glass-card" id="resultsCard" style="padding: 4rem;">
         <!-- Result Header -->
         <div class="result-header">
@@ -704,7 +689,7 @@
 
         <!-- Actions -->
         <div class="action-buttons">
-          <button class="action-btn" onclick="downloadReport()">Download PDF Report</button>
+          <button class="action-btn" onclick="downloadReport()">Download Report</button>
           <button class="action-btn" onclick="printReport()">Print Summary</button>
           <button class="action-btn" onclick="resetAnalysis()">New Examination</button>
         </div>
@@ -760,35 +745,45 @@
     }
 
     // Analysis Logic
-    function startAnalysis() {
-      const notes = document.getElementById('clinicalNotes').value.trim();
-      if (!notes) {
-        alert('Please enter clinical notes to proceed.');
-        return;
-      }
-
+    async function startAnalysis() {
       // UI Feedback
       const btn = document.getElementById('analyzeBtn');
       const overlay = document.getElementById('processingOverlay');
+
+      const scanData = sessionStorage.getItem('scanImage');
+      if (!scanData) {
+        alert("No scan image found. Please upload a scan first.");
+        return;
+      }
 
       btn.disabled = true;
       overlay.classList.add('active');
       analysisStartTime = Date.now();
 
-      // Simulate AI
-      setTimeout(() => {
-        performAnalysis(notes);
+      try {
+        // Call API
+        const response = await fetch('/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: scanData })
+        });
+
+        if (!response.ok) throw new Error('Prediction failed');
+
+        const data = await response.json();
+        displayResults(data);
+
+      } catch (error) {
+        console.error("Analysis Error:", error);
+        alert("Error analyzing scan. Please verify the server is running.");
+      } finally {
         overlay.classList.remove('active');
         btn.disabled = false;
-
-        // Scroll to results
-        const resultsSection = document.getElementById('resultsSection');
-        resultsSection.classList.add('show');
-        resultsSection.scrollIntoView({ behavior: 'smooth' });
-      }, 2500);
+      }
     }
 
-    function performAnalysis(notes) {
+    function displayResults(data) {
+      const resultsSection = document.getElementById('resultsSection');
       const resultsCard = document.getElementById('resultsCard');
       const icon = document.getElementById('resultIcon');
       const title = document.getElementById('resultTitle');
@@ -796,23 +791,27 @@
       const fill = document.getElementById('confidenceFill');
       const confText = document.getElementById('confidenceValueText');
 
-      // Simple Keyword Logic
-      const keywords = ['memory', 'confusion', 'dementia', 'lost', 'forget'];
-      const isRisk = keywords.some(kw => notes.toLowerCase().includes(kw));
-      const confidence = isRisk ? 88 : 92;
+      // Scroll to results
+      resultsSection.classList.add('show');
+      resultsSection.scrollIntoView({ behavior: 'smooth' });
+
+      // Process Data
+      const confidence = (data.confidence * 100).toFixed(1);
+      const isRisk = data.class.toLowerCase() !== 'non demented' &&
+        data.class.toLowerCase() !== 'nondemented';
 
       if (isRisk) {
         resultsCard.className = 'glass-card result-positive';
         icon.textContent = '⚠️';
-        title.textContent = 'Potential Anomalies Detected';
+        title.textContent = `Diagnosis: ${data.class}`;
         title.className = 'result-title result-positive-text';
-        desc.textContent = 'The model identified patterns consistent with early-stage cognitive decline. Recommended: Follow-up PET scan.';
+        desc.textContent = `The AI model has identified cognitive patterns consistent with ${data.class}. We recommend consulting with a neurologist for further evaluation and potential follow-up imaging (PET scan).`;
       } else {
         resultsCard.className = 'glass-card result-negative';
         icon.textContent = '✅';
-        title.textContent = 'No Significant Finds';
+        title.textContent = 'No Significant Abnormalities Detected';
         title.className = 'result-title result-negative-text';
-        desc.textContent = 'No structural anomalies detected. Standard annual check-up recommended.';
+        desc.textContent = `The analysis indicates ${data.class}. No structural anomalies or cognitive decline patterns were detected in the provided scan. Continue with standard annual check-ups as recommended by your healthcare provider.`;
       }
 
       // Metrics
@@ -823,14 +822,62 @@
       setTimeout(() => {
         fill.style.width = confidence + '%';
         confText.textContent = confidence + '%';
+        fill.textContent = data.class;
       }, 100);
     }
 
-    function downloadReport() { alert('Downloading PDF...'); }
+    function downloadReport() {
+      const patientName = document.getElementById('displayName').textContent;
+      const resultTitle = document.getElementById('resultTitle').textContent;
+      const resultDesc = document.getElementById('resultDescription').textContent;
+      const confidence = document.getElementById('confidenceValueText').textContent;
+      const date = document.getElementById('analysisDate').textContent;
+
+      const reportContent = `
+MINDSCAN AI - DIAGNOSTIC REPORT
+--------------------------------
+Date: ${date}
+Patient: ${patientName}
+
+ANALYSIS RESULTS
+----------------
+Result: ${resultTitle}
+Confidence: ${confidence}
+
+Details:
+${resultDesc}
+
+--------------------------------
+Disclaimer: Research Use Only.
+            `;
+
+      const blob = new Blob([reportContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `MindScan_Report_${patientName.replace(/\s+/g, '_')}_${Date.now()}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
     function printReport() { window.print(); }
     function resetAnalysis() {
       if (confirm('Start over?')) location.reload();
     }
+
+    // Fix cursor visibility
+    const cursor = document.querySelector('.cursor-dot, .cursor-circle'); // Assuming these classes from cursor-trail.js
+    if (cursor) {
+      cursor.style.mixBlendMode = 'difference';
+      cursor.style.zIndex = '9999';
+    }
+
+    // Ensure cursor is visible on black surface
+    document.getElementById('scanViewerContainer').addEventListener('mouseenter', () => {
+      document.body.style.cursor = 'auto'; // Fallback
+    });
   </script>
 </body>
 
