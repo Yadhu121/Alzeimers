@@ -1,0 +1,12 @@
+archive.zip
+Dataset/
+testIMG
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# System
+.DS_Store
+.vscode/
