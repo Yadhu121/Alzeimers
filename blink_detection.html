@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blink Detection - MindScan AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #222222; --primary-light: #444444; --accent: #000000;
+  --text-primary: #000000; --text-secondary: #555555;
+  --bg-gradient: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+  --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+}
+.glass-card {
+  background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 24px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+body {
+  font-family: 'DM Sans', Arial, sans-serif; color: var(--text-primary);
+  background: var(--bg-gradient); min-height: 100vh; display: flex; flex-direction: column;
+}
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 1.5rem 5%;
+  background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+.nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.logo {
+  font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700;
+  color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem;
+}
+.logo-icon {
+  width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--accent));
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 1.2rem;
+}
+.nav-links { display: flex; gap: 3rem; list-style: none; }
+.nav-links a {
+  color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: all 0.3s ease;
+}
+.cta-button {
+  padding: 0.75rem 2rem; background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white; border: none; border-radius: 50px; font-weight: 600;
+  text-decoration: none; box-shadow: 0 4px 15px rgba(15, 76, 129, 0.3);
+}
+section { padding: 8rem 5% 6rem; position: relative; }
+.section-header { max-width: 800px; margin: 0 auto 3rem; text-align: center; }
+.section-label {
+  display: inline-block; padding: 0.5rem 1.5rem; background: rgba(0, 0, 0, 0.05);
+  color: var(--accent); border-radius: 50px; font-size: 0.9rem; font-weight: 600;
+  margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px;
+}
+.section-title {
+  font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700;
+  color: var(--dark); margin-bottom: 1rem;
+}
+.section-description { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.6; }
+.container { max-width: 1200px; margin: 0 auto; }
+.stats-display {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;
+  max-width: 900px; margin: 0 auto 3rem;
+}
+.stat-box {
+  text-align: center; padding: 2rem; background: rgba(255, 255, 255, 0.5);
+  border-radius: 16px; transition: transform 0.3s ease;
+}
+.stat-label {
+  display: block; font-size: 0.85rem; color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; font-weight: 600;
+}
+.stat-value { font-size: 2rem; color: var(--primary); font-weight: 700; }
+.progress-container { max-width: 900px; margin: 0 auto 2rem; }
+.progress-bar {
+  background: #e2e8f0; height: 40px; border-radius: 40px; overflow: hidden;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: 40px; display: flex; align-items: center; justify-content: flex-end;
+  padding-right: 1rem; color: white; font-weight: 600; width: 0; transition: width 0.3s ease;
+}
+.video-container {
+  max-width: 900px; margin: 0 auto 3rem; background: #000; border-radius: 20px;
+  padding: 2rem; text-align: center; min-height: 500px; display: flex;
+  align-items: center; justify-content: center; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+#videoFeed { max-width: 100%; max-height: 450px; border-radius: 8px; display: none; }
+.video-placeholder { color: rgba(255, 255, 255, 0.7); font-size: 1.2rem; }
+.control-buttons { display: flex; gap: 1.5rem; justify-content: center; margin-bottom: 3rem; }
+.control-btn {
+  padding: 1.25rem 2.5rem; background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white; border: none; border-radius: 50px; font-weight: 600; font-size: 1.1rem;
+  cursor: pointer; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+.control-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3); }
+.control-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.control-btn.stop { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+.results-section { display: none; padding-top: 4rem; }
+.results-section.show { display: block; animation: slideUp 0.8s ease; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+.result-card { max-width: 800px; margin: 0 auto; padding: 3rem; text-align: center; }
+.result-icon { font-size: 5rem; margin-bottom: 1.5rem; }
+.result-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+.result-description { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: 2rem; }
+.risk-normal { color: var(--success); }
+.risk-moderate { color: var(--warning); }
+.risk-high { color: var(--danger); }
+.action-buttons { display: flex; gap: 1.5rem; justify-content: center; margin-top: 2rem; }
+.action-btn {
+  padding: 1rem 2.5rem; border: 2px solid var(--primary); background: transparent;
+  color: var(--primary); border-radius: 50px; font-weight: 600; cursor: pointer;
+  transition: all 0.3s ease; font-size: 1rem;
+}
+.action-btn:hover { background: var(--primary); color: white; transform: translateY(-3px); }
+.footer { background: var(--dark); color: rgba(255, 255, 255, 0.7); padding: 4rem 5%; text-align: center; margin-top: auto; }
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .stats-display { grid-template-columns: 1fr; }
+  .control-buttons, .action-buttons { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="logo"><div class="logo-icon">M</div>MindScan AI</a>
+    <ul class="nav-links">
+      <li><a href="index.html#home">Home</a></li>
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="#" style="color: var(--primary);">Blink Detection</a></li>
+    </ul>
+    <a href="index.html" class="cta-button">Back to Home</a>
+  </div>
+</nav>
+
+<section>
+  <div class="section-header">
+    <span class="section-label">Neurological Assessment</span>
+    <h2 class="section-title">Blink Pattern Analysis</h2>
+    <p class="section-description">
+      Our AI analyzes your blink patterns over 30 seconds to detect early neurological signs.
+    </p>
+  </div>
+
+  <div class="container">
+    <div class="stats-display">
+      <div class="stat-box glass-card">
+        <span class="stat-label">Blink Count</span>
+        <span class="stat-value" id="blinkCount">0</span>
+      </div>
+      <div class="stat-box glass-card">
+        <span class="stat-label">Time Remaining</span>
+        <span class="stat-value" id="timeRemaining">30s</span>
+      </div>
+      <div class="stat-box glass-card">
+        <span class="stat-label">Status</span>
+        <span class="stat-value" id="status" style="font-size: 1.2rem;">Ready</span>
+      </div>
+    </div>
+
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill">
+          <span id="progressText">0%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="video-container">
+      <img id="videoFeed" alt="Video Feed">
+      <p class="video-placeholder" id="placeholder">Click "Start Detection" to begin</p>
+    </div>
+
+    <div class="control-buttons">
+      <button class="control-btn" id="startBtn" onclick="startDetection()">Start Detection</button>
+      <button class="control-btn stop" id="stopBtn" onclick="stopDetection()" disabled>Stop Early</button>
+    </div>
+
+    <div class="results-section" id="resultsSection">
+      <div class="glass-card result-card">
+        <div class="result-icon" id="resultIcon"></div>
+        <h3 class="result-title" id="resultTitle"></h3>
+        <p class="result-description" id="resultDescription"></p>
+        <div class="action-buttons">
+          <button class="action-btn" onclick="downloadReport()">Download Report</button>
+          <button class="action-btn" onclick="location.reload()">Run Again</button>
+          <button class="action-btn" onclick="window.location.href='index.html'">Back to Home</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">© 2024 MindScan AI. Research Use Only.</footer>
+
+<script>
+let detectionActive = false, updateInterval, finalResults = null;
+
+async function startDetection() {
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+  document.getElementById('status').textContent = 'Analyzing...';
+  document.getElementById('placeholder').style.display = 'none';
+  document.getElementById('videoFeed').style.display = 'block';
+  detectionActive = true;
+  
+  try {
+    const res = await fetch('/start_blink_detection', {method: 'POST'});
+    const data = await res.json();
+    if (data.status === 'started') updateInterval = setInterval(updateStats, 500);
+    else { alert('Failed to start'); resetUI(); }
+  } catch (e) { alert('Server error'); resetUI(); }
+}
+
+async function updateStats() {
+  if (!detectionActive) return;
+  try {
+    const res = await fetch('/get_blink_stats');
+    const data = await res.json();
+    document.getElementById('videoFeed').src = 'data:image/jpeg;base64,' + data.frame;
+    document.getElementById('blinkCount').textContent = data.blink_count;
+    document.getElementById('timeRemaining').textContent = data.time_remaining + 's';
+    const progress = ((30 - data.time_remaining) / 30) * 100;
+    document.getElementById('progressFill').style.width = progress + '%';
+    document.getElementById('progressText').textContent = Math.round(progress) + '%';
+    if (data.completed) { finalResults = data; stopDetection(); displayResults(data); }
+  } catch (e) { console.error(e); }
+}
+
+async function stopDetection() {
+  detectionActive = false;
+  clearInterval(updateInterval);
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('status').textContent = 'Completed';
+  try { await fetch('/stop_blink_detection', {method: 'POST'}); } catch (e) { }
+}
+
+function displayResults(data) {
+  const section = document.getElementById('resultsSection');
+  const icon = document.getElementById('resultIcon');
+  const title = document.getElementById('resultTitle');
+  const desc = document.getElementById('resultDescription');
+  section.classList.add('show');
+  section.scrollIntoView({behavior: 'smooth'});
+  const count = data.blink_count;
+  if (count >= 8) {
+    icon.textContent = '✅';
+    title.textContent = 'Normal Blink Pattern';
+    title.className = 'result-title risk-normal';
+    desc.textContent = `${count} blinks detected. Normal range indicating healthy neurological function.`;
+  } else if (count >= 5) {
+    icon.textContent = '⚠️';
+    title.textContent = 'Slight Change Detected';
+    title.className = 'result-title risk-moderate';
+    desc.textContent = `${count} blinks detected. Slight deviation - monitoring recommended.`;
+  } else {
+    icon.textContent = '🔴';
+    title.textContent = 'Significant Deviation';
+    title.className = 'result-title risk-high';
+    desc.textContent = `${count} blinks detected. Below expected range - consultation recommended.`;
+  }
+}
+
+function resetUI() {
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('videoFeed').style.display = 'none';
+  document.getElementById('placeholder').style.display = 'block';
+}
+
+function downloadReport() {
+  if (!finalResults) { alert('No results'); return; }
+  const count = finalResults.blink_count;
+  const risk = count >= 8 ? 'Low' : count >= 5 ? 'Moderate' : 'Higher';
+  const report = `MINDSCAN AI - BLINK DETECTION REPORT\nDate: ${new Date().toLocaleString()}\n\nRESULTS\nTotal Blinks: ${count}\nRisk Level: ${risk}\n`;
+  const blob = new Blob([report], {type: 'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `Blink_Report_${Date.now()}.txt`;
+  a.click();
+}
+</script>
+</body>
+</html>
