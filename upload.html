@@ -51,7 +51,6 @@ body {
   padding: 40px 20px;
 }
 
-/* Navigation */
 .navbar {
   position: fixed;
   top: 0;
@@ -161,7 +160,6 @@ body {
   background-position: right center;
 }
 
-/* Upload Section */
 .upload-section {
   padding: 6rem 5% 4rem;
   background: transparent;
@@ -361,7 +359,7 @@ body {
 </style>
 </head>
 <body>
-<!-- Navigation -->
+
 <nav class="navbar">
   <div class="nav-container">
     <a href="index.html" class="logo">
@@ -377,7 +375,6 @@ body {
   </div>
 </nav>
 
-<!-- Upload Section -->
 <section class="upload-section">
   <div class="section-header">
     <span class="section-label">Start Analysis</span>
@@ -436,7 +433,7 @@ body {
 </section>
 
 <script>
-// Navbar scroll effect
+
 window.addEventListener('scroll', () => {
   const navbar = document.querySelector('.navbar');
   if (window.scrollY > 50) {
@@ -446,11 +443,9 @@ window.addEventListener('scroll', () => {
   }
 });
 
-// Set max date to today
 const today = new Date().toISOString().split('T')[0];
 document.getElementById('scanDate').setAttribute('max', today);
 
-// Form submission
 const form = document.getElementById('scanForm');
 const submitBtn = document.getElementById('submitBtn');
 
@@ -502,8 +497,7 @@ form.addEventListener('submit', function (e) {
         submitBtn.textContent = "Analyze Scan with AI";
         return;
       }
-      
-      // Store everything for next page
+
       sessionStorage.setItem('patientName', name);
       sessionStorage.setItem('scanDate', date);
       sessionStorage.setItem('scanType', scanType);
