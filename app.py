@@ -11,16 +11,10 @@ from blink_model import BlinkDetector
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 
-# ===============================
-# DATABASE CONFIG (SQLite)
-# ===============================
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# ===============================
-# DATABASE MODELS
-# ===============================
 class Patient(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200))
@@ -39,9 +33,6 @@ class Scan(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
-# ===============================
-# LOAD MODEL
-# ===============================
 try:
     model = YOLO('best.pt')
     print("Model loaded successfully")
@@ -49,20 +40,11 @@ except Exception as e:
     print(f"Error loading model: {e}")
     model = None
 
-# ===============================
-# BLINK DETECTOR INSTANCE
-# ===============================
 blink_detector = BlinkDetector()
 
-# ===============================
-# UPLOAD FOLDER
-# ===============================
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# ===============================
-# ROUTES
-# ===============================
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
@@ -87,9 +69,7 @@ def predict():
         return jsonify({'error': 'No image data provided'}), 400
 
     try:
-        # ===============================
-        # GET FORM DATA
-        # ===============================
+
         name = data.get("name")
         email = data.get("email")
         phone = data.get("phone")
@@ -97,16 +77,10 @@ def predict():
         scan_date = data.get("scan_date")
         image_base64 = data.get("image")
 
-        # ===============================
-        # SAVE PATIENT
-        # ===============================
         patient = Patient(name=name, email=email, phone=phone)
         db.session.add(patient)
         db.session.commit()
 
-        # ===============================
-        # SAVE IMAGE FILE
-        # ===============================
         image_data = image_base64.split(',')[1]
         image_bytes = base64.b64decode(image_data)
 
@@ -118,17 +92,11 @@ def predict():
 
         img = Image.open(io.BytesIO(image_bytes))
 
-        # ===============================
-        # RUN MODEL
-        # ===============================
         results = model.predict(source=img, verbose=False)
         probs = results[0].probs
         predicted_class = results[0].names[probs.top1]
         confidence = float(probs.top1conf)
 
-        # ===============================
-        # SAVE SCAN RESULT
-        # ===============================
         scan = Scan(
             patient_id=patient.id,
             file_path=file_path,
@@ -149,10 +117,6 @@ def predict():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-# ===============================
-# BLINK DETECTION ROUTES
-# ===============================
 @app.route('/start_blink_detection', methods=['POST'])
 def start_blink_detection():
     """Start the blink detection process"""
@@ -193,10 +157,6 @@ def stop_blink_detection():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-# ===============================
-# INIT DB
-# ===============================
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

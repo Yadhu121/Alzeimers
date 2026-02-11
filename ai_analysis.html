@@ -6,7 +6,6 @@
 <title>MindScan AI | Analysis Results</title>
 <meta name="description" content="AI-powered analysis results for Alzheimer's detection.">
 
-<!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -56,7 +55,6 @@ body {
   flex-direction: column;
 }
 
-/* Navigation */
 .navbar {
   position: fixed;
   top: 0;
@@ -166,7 +164,6 @@ body {
   background-position: right center;
 }
 
-/* General Section Styling */
 section {
   padding: 6rem 5%;
   position: relative;
@@ -210,7 +207,6 @@ section {
   margin: 0 auto;
 }
 
-/* Patient Info Section */
 .patient-info-content {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -248,7 +244,6 @@ section {
   font-family: 'DM Sans', sans-serif;
 }
 
-/* Scan Viewer */
 .scan-viewer-container {
   background: #000;
   border-radius: 20px;
@@ -270,7 +265,6 @@ section {
   border-radius: 8px;
 }
 
-/* Analyze Button */
 .analyze-btn {
   width: 100%;
   max-width: 400px;
@@ -306,7 +300,6 @@ section {
   cursor: not-allowed;
 }
 
-/* Results Section */
 .results-section {
   background: white;
   display: none;
@@ -451,7 +444,6 @@ section {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* Loading Overlay */
 .ai-processing-overlay {
   position: fixed;
   top: 0;
@@ -497,7 +489,6 @@ section {
   color: var(--text-secondary);
 }
 
-/* Footer */
 .footer {
   background: var(--dark);
   color: rgba(255, 255, 255, 0.7);
@@ -542,7 +533,7 @@ section {
 </head>
 
 <body>
-<!-- Navbar -->
+
 <nav class="navbar">
   <div class="nav-container">
     <a href="index.html" class="logo">
@@ -558,7 +549,6 @@ section {
   </div>
 </nav>
 
-<!-- Processing Overlay -->
 <div class="ai-processing-overlay" id="processingOverlay">
   <div class="processing-spinner"></div>
   <div class="processing-text">
@@ -567,7 +557,6 @@ section {
   </div>
 </div>
 
-<!-- Patient Info -->
 <section class="patient-section" style="padding-top: 8rem;">
   <div class="section-header">
     <span class="section-label">Analysis Dashboard</span>
@@ -596,7 +585,6 @@ section {
   </div>
 </section>
 
-<!-- Examination Section -->
 <section class="examination-section" style="background: rgba(0,0,0,0.02);">
   <div class="section-header">
     <span class="section-label">Medical Examination</span>
@@ -618,18 +606,16 @@ section {
   </div>
 </section>
 
-<!-- Results Section -->
 <section class="results-section" id="resultsSection">
   <div class="container">
     <div class="glass-card" id="resultsCard" style="padding: 4rem;">
-      <!-- Result Header -->
+
       <div class="result-header">
         <div class="result-icon" id="resultIcon"></div>
         <h3 class="result-title" id="resultTitle"></h3>
         <p class="result-description" id="resultDescription"></p>
       </div>
 
-      <!-- Confidence Bar -->
       <div class="confidence-container">
         <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
           <span class="info-label">Model Confidence</span>
@@ -642,7 +628,6 @@ section {
         </div>
       </div>
 
-      <!-- Metrics -->
       <div class="metrics-grid">
         <div class="metric-box">
           <div class="info-label">Processing Duration</div>
@@ -658,7 +643,6 @@ section {
         </div>
       </div>
 
-      <!-- Actions -->
       <div class="action-buttons">
         <button class="action-btn" onclick="downloadReport()">Download Report</button>
         <button class="action-btn" onclick="printReport()">Print Summary</button>
@@ -668,7 +652,6 @@ section {
   </div>
 </section>
 
-<!-- Footer -->
 <footer class="footer">
   <div class="footer-content">
     © 2024 MindScan AI. Research Use Only.
@@ -676,7 +659,7 @@ section {
 </footer>
 
 <script>
-// Navbar scroll
+
 window.addEventListener('scroll', () => {
   const navbar = document.querySelector('.navbar');
   navbar.classList.toggle('scrolled', window.scrollY > 50);
@@ -684,12 +667,10 @@ window.addEventListener('scroll', () => {
 
 let analysisStartTime;
 
-// Load Data on page load
 window.onload = function () {
   loadPatientData();
   loadScanImage();
 
-  // Auto-show results if prediction exists
   if (sessionStorage.getItem('predictionClass')) {
     setTimeout(() => startAnalysis(), 500);
   }
@@ -720,7 +701,6 @@ function loadScanImage() {
   }
 }
 
-// Analysis Logic
 function startAnalysis() {
   const btn = document.getElementById('analyzeBtn');
   const overlay = document.getElementById('processingOverlay');
@@ -756,11 +736,9 @@ function displayResults(data) {
   const fill = document.getElementById('confidenceFill');
   const confText = document.getElementById('confidenceValueText');
 
-  // Show results
   resultsSection.classList.add('show');
   resultsSection.scrollIntoView({ behavior: 'smooth' });
 
-  // Process Data
   const confidence = (data.confidence * 100).toFixed(1);
   const isRisk = data.class.toLowerCase() !== 'non demented' &&
     data.class.toLowerCase() !== 'nondemented';
@@ -779,11 +757,9 @@ function displayResults(data) {
     desc.textContent = `The analysis indicates ${data.class}. No structural anomalies or cognitive decline patterns were detected in the provided scan. Continue with standard annual check-ups as recommended by your healthcare provider.`;
   }
 
-  // Metrics
   document.getElementById('processingTime').textContent = ((Date.now() - analysisStartTime) / 1000).toFixed(1) + 's';
   document.getElementById('analysisDate').textContent = new Date().toLocaleDateString();
 
-  // Animate Bar
   setTimeout(() => {
     fill.style.width = confidence + '%';
     confText.textContent = confidence + '%';

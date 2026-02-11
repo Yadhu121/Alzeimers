@@ -731,11 +731,10 @@
             }
         }
 
-        /* Features */
         .features {
             padding: 6rem 5%;
             background: transparent;
-            /* Remove background */
+
         }
 
 
@@ -786,7 +785,6 @@
             line-height: 1.7;
         }
 
-        /* Footer */
         .footer {
             background: var(--dark);
             color: rgba(255, 255, 255, 0.7);
@@ -815,7 +813,6 @@
             opacity: 0.6;
         }
 
-        /* Animations */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -838,7 +835,6 @@
             }
         }
 
-        /* Responsive */
         @media (max-width: 1024px) {
             .hero-content {
                 text-align: center;
@@ -897,7 +893,6 @@
 </head>
 
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
             <a href="#" class="logo">
@@ -914,7 +909,6 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section class="hero" id="home">
         <div class="hero-content">
             <div class="hero-text">
@@ -931,13 +925,11 @@
                     <a href="#analysis" class="btn-primary">Upload Scan Now</a>
                     <a href="#features" class="btn-secondary">Learn More</a>
                 </div>
-                <!-- Stats Removed -->
             </div>
-            <!-- Hero Visual Removed -->
+
         </div>
     </section>
 
-    <!-- Features Section -->
     <section class="features" id="features">
         <div class="section-header">
             <span class="section-label">Our Technology</span>
@@ -999,7 +991,6 @@
         </div>
     </section>
 
-    <!-- Analysis Selection Section -->
     <section class="analysis-selection" id="analysis" style="padding: 6rem 5%; background: white;">
         <div class="section-header">
             <span class="section-label">Choose Analysis Type</span>
@@ -1009,7 +1000,7 @@
             </p>
         </div>
         <div class="features-grid" style="margin-top: 2rem;">
-            <!-- Upload MRI -->
+
             <a href="upload.html" class="feature-card glass-card"
                 style="text-decoration: none; text-align: center; display: block; cursor: pointer;">
                 <div class="feature-icon" style="margin: 0 auto 1.5rem;">
@@ -1021,7 +1012,6 @@
                 </p>
             </a>
 
-            <!-- Blink Detection -->
             <a href="blink_detection.html" class="feature-card glass-card"
                 style="text-decoration: none; text-align: center; display: block; cursor: pointer;">
                 <div class="feature-icon" style="margin: 0 auto 1.5rem;">
@@ -1033,7 +1023,6 @@
                 </p>
             </a>
 
-            <!-- Type Analysis -->
             <a href="#" class="feature-card glass-card"
                 style="text-decoration: none; text-align: center; display: block; cursor: pointer;">
                 <div class="feature-icon" style="margin: 0 auto 1.5rem;">
@@ -1047,7 +1036,6 @@
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
             <div class="disclaimer">
@@ -1064,7 +1052,7 @@
     </footer>
 
     <script>
-        // Navbar scroll effect
+
         window.addEventListener('scroll', () => {
             const navbar = document.querySelector('.navbar');
             if (window.scrollY > 50) {
@@ -1074,7 +1062,6 @@
             }
         });
 
-        // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
