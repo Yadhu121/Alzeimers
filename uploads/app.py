@@ -7,7 +7,6 @@ import base64
 import os
 import uuid
 from datetime import datetime
-from blink_model import BlinkDetector
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 
@@ -48,11 +47,6 @@ try:
 except Exception as e:
     print(f"Error loading model: {e}")
     model = None
-
-# ===============================
-# BLINK DETECTOR INSTANCE
-# ===============================
-blink_detector = BlinkDetector()
 
 # ===============================
 # UPLOAD FOLDER
@@ -151,50 +145,6 @@ def predict():
 
 
 # ===============================
-# BLINK DETECTION ROUTES
-# ===============================
-@app.route('/start_blink_detection', methods=['POST'])
-def start_blink_detection():
-    """Start the blink detection process"""
-    try:
-        success = blink_detector.start()
-        if success:
-            return jsonify({'status': 'started'})
-        else:
-            return jsonify({'status': 'error', 'error': 'Failed to start camera'}), 500
-    except Exception as e:
-        return jsonify({'status': 'error', 'error': str(e)}), 500
-
-
-@app.route('/get_blink_stats', methods=['GET'])
-def get_blink_stats():
-    """Get current blink detection statistics and video frame"""
-    try:
-        stats = blink_detector.get_stats()
-        frame_base64 = blink_detector.get_current_frame_base64()
-        
-        return jsonify({
-            'blink_count': stats['blink_count'],
-            'time_remaining': stats['time_remaining'],
-            'completed': stats['completed'],
-            'frame': frame_base64
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/stop_blink_detection', methods=['POST'])
-def stop_blink_detection():
-    """Stop the blink detection process"""
-    try:
-        blink_detector.stop()
-        results = blink_detector.get_final_results()
-        return jsonify(results)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-# ===============================
 # INIT DB
 # ===============================
 if __name__ == '__main__':
@@ -202,3 +152,4 @@ if __name__ == '__main__':
         db.create_all()
 
     app.run(debug=True, use_reloader=False, port=5000)
+
