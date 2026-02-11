@@ -52,8 +52,7 @@ class BlinkDetector:
         self.blink_total = 0
         self.closed_counter = 0
         self.start_time = time.time()
-        
-        # Start detection thread
+
         self.thread = threading.Thread(target=self._detection_loop, daemon=True)
         self.thread.start()
         
@@ -64,13 +63,11 @@ class BlinkDetector:
             ret, frame = self.cap.read()
             if not ret:
                 break
-            
-            # Check if time is up
+
             if time.time() - self.start_time > self.duration:
                 self.running = False
                 break
-            
-            # Flip and process frame
+ 
             frame = cv2.flip(frame, 1)
             h, w, _ = frame.shape
             rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -99,7 +96,7 @@ class BlinkDetector:
         
         with self.frame_lock:
             if self.current_frame is None:
-                # Return blank frame
+
                 blank = np.zeros((480, 640, 3), dtype=np.uint8)
                 _, buffer = cv2.imencode('.jpg', blank)
                 return base64.b64encode(buffer).decode('utf-8')
