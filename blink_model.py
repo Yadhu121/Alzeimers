@@ -78,12 +78,26 @@ class BlinkDetector:
                 
                 left_eye = [(int(lm[i].x * w), int(lm[i].y * h)) for i in self.LEFT_EYE]
                 right_eye = [(int(lm[i].x * w), int(lm[i].y * h)) for i in self.RIGHT_EYE]
+
+                for point in left_eye:
+                    cv2.circle(frame, point, 2, (0, 255, 0), -1)
+                for point in right_eye:
+                    cv2.circle(frame, point, 2, (0, 255, 0), -1)
+                
+                for i in range(len(left_eye)):
+                    next_i = (i + 1) % len(left_eye)
+                    cv2.line(frame, left_eye[i], left_eye[next_i], (255, 0, 0), 1)
+                
+                for i in range(len(right_eye)):
+                    next_i = (i + 1) % len(right_eye)
+                    cv2.line(frame, right_eye[i], right_eye[next_i], (255, 0, 0), 1)
                 
                 left_ear = self.eye_aspect_ratio(left_eye)
                 right_ear = self.eye_aspect_ratio(right_eye)
                                 
                 if left_ear < self.EAR_THRESHOLD and right_ear < self.EAR_THRESHOLD:
                     self.closed_counter += 1
+
                 else:
                     if self.closed_counter >= self.CLOSED_FRAMES:
                         self.blink_total += 1
