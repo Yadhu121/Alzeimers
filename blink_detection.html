@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blink Detection - MindScan AI</title>
+<title>Blink Detection - Predictamind</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -148,7 +148,7 @@ section { padding: 8rem 5% 6rem; position: relative; }
 <body>
 <nav class="navbar">
   <div class="nav-container">
-    <a href="index.html" class="logo"><div class="logo-icon">P</div>MindScan AI</a>
+    <a href="index.html" class="logo"><div class="logo-icon">P</div>Predictamind</a>
     <ul class="nav-links">
       <li><a href="index.html#home">Home</a></li>
       <li><a href="index.html#features">Features</a></li>
@@ -241,7 +241,7 @@ section { padding: 8rem 5% 6rem; position: relative; }
   </div>
 </section>
 
-<footer class="footer">© 2024 MindScan AI. Research Use Only.</footer>
+<footer class="footer">© 2026 Predictamind. Research Use Only.</footer>
 
 <script>
 let detectionActive = false, updateInterval, finalResults = null;
@@ -323,7 +323,7 @@ function downloadReport() {
   if (!finalResults) { alert('No results'); return; }
   const count = finalResults.blink_count;
   const risk = count >= 8 ? 'Low' : count >= 5 ? 'Moderate' : 'Higher';
-  const report = `MINDSCAN AI - BLINK DETECTION REPORT\nDate: ${new Date().toLocaleString()}\n\nRESULTS\nTotal Blinks: ${count}\nRisk Level: ${risk}\n`;
+  const report = `Predictamind - BLINK DETECTION REPORT\nDate: ${new Date().toLocaleString()}\n\nRESULTS\nTotal Blinks: ${count}\nRisk Level: ${risk}\n`;
   const blob = new Blob([report], {type: 'text/plain'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
