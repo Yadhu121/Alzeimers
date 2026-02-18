@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MindScan AI | Analysis Results</title>
+<title>Predictamind | Analysis Results</title>
 <meta name="description" content="AI-powered analysis results for Alzheimer's detection.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -537,8 +537,8 @@ section {
 <nav class="navbar">
   <div class="nav-container">
     <a href="index.html" class="logo">
-      <div class="logo-icon">M</div>
-      MindScan AI
+      <div class="logo-icon">P</div>
+      Predictamind
     </a>
     <ul class="nav-links">
       <li><a href="index.html#home">Home</a></li>
@@ -654,7 +654,7 @@ section {
 
 <footer class="footer">
   <div class="footer-content">
-    © 2024 MindScan AI. Research Use Only.
+    © 2026 Predictamind. Research Use Only.
   </div>
 </footer>
 
@@ -775,7 +775,7 @@ function downloadReport() {
   const date = document.getElementById('analysisDate').textContent;
 
   const reportContent = `
-MINDSCAN AI - DIAGNOSTIC REPORT
+Predictamind - DIAGNOSTIC REPORT
 --------------------------------
 Date: ${date}
 Patient: ${patientName}
@@ -796,7 +796,7 @@ Disclaimer: Research Use Only.
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `MindScan_Report_${patientName.replace(/\s+/g, '_')}_${Date.now()}.txt`;
+  a.download = `Predictamind_${patientName.replace(/\s+/g, '_')}_${Date.now()}.txt`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
