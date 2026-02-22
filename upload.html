@@ -414,11 +414,13 @@
           </div>
           <div class="form-group">
             <label class="form-label">Scan Type</label>
-            <select class="form-select" id="scanType" required>
-              <option value="">Select type</option>
-              <option value="MRI">MRI</option>
-              <option value="CT">CT Scan</option>
-            </select>
+            <div class="form-input"
+              style="display:flex;align-items:center;gap:0.6rem;pointer-events:none;background:#f8faff;border-color:#c7d2e8;">
+              <span
+                style="background:#dbeafe;color:#1d4ed8;padding:0.2rem 0.8rem;border-radius:50px;font-size:0.85rem;font-weight:700;">MRI</span>
+              Brain MRI Scan
+            </div>
+            <input type="hidden" id="scanType" value="MRI">
           </div>
         </div>
 
