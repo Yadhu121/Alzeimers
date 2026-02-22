@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Test History – Predictamind</title>
+    <meta name="description" content="View your complete test history for Alzheimer's detection assessments.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="js/cursor-trail.js" defer></script>
+    <script src="js/floating-particles.js" defer></script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #222;
+            --accent: #1d4ed8;
+            --bg: linear-gradient(135deg, #f8f9ff 0%, #eef1f8 100%);
+            --glass: rgba(255, 255, 255, 0.82);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --shadow: 0 8px 40px rgba(31, 38, 135, 0.1);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: #222;
+            cursor: none;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1.2rem 5%;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #222;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 34px;
+            height: 34px;
+            background: #222;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .nav-back {
+            padding: 0.6rem 1.4rem;
+            background: #222;
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .nav-back:hover {
+            background: #444;
+        }
+
+        /* Page layout */
+        .page-wrap {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 7rem 1.5rem 4rem;
+        }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-label {
+            display: inline-block;
+            padding: 0.4rem 1.2rem;
+            background: rgba(29, 78, 216, 0.1);
+            color: #1d4ed8;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            letter-spacing: 0.04em;
+        }
+
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.6rem;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 0.5rem;
+        }
+
+        .patient-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #15803d;
+            padding: 0.4rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 0.75rem;
+        }
+
+        /* No-data state */
+        .no-session {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: 3rem;
+            text-align: center;
+            color: #64748b;
+        }
+
+        .no-session a {
+            color: #1d4ed8;
+            font-weight: 600;
+        }
+
+        /* Stats bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 18px;
+            padding: 1.5rem 1.2rem;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .stat-icon {
+            font-size: 1.6rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-num {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #222;
+        }
+
+        .stat-lbl {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Section cards */
+        .history-section {
+            background: var(--glass);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border);
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .section-head {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.4rem 1.8rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .section-head h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .badge-count {
+            background: #e2e8f0;
+            color: #475569;
+            padding: 0.2rem 0.7rem;
+            border-radius: 50px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .section-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* Entry rows */
+        .entries {
+            padding: 0.5rem 0;
+        }
+
+        .entry-row {
+            display: grid;
+            padding: 1rem 1.8rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            transition: background 0.15s;
+        }
+
+        .entry-row:last-child {
+            border-bottom: none;
+        }
+
+        .entry-row:hover {
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        /* MRI entry */
+        .mri-entry {
+            grid-template-columns: 1fr 1fr auto;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .mri-class {
+            display: inline-block;
+            padding: 0.25rem 0.9rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .mri-class.normal {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .mri-class.mild {
+            background: #fef9c3;
+            color: #a16207;
+        }
+
+        .mri-class.moderate {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .mri-class.severe {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* Blink entry */
+        .blink-entry {
+            grid-template-columns: auto 1fr auto;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .blink-num {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #b45309;
+            line-height: 1;
+        }
+
+        /* Typing entry */
+        .typing-entry {
+            grid-template-columns: auto auto 1fr auto;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .typing-stat {
+            text-align: center;
+        }
+
+        .typing-stat .big {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #1d4ed8;
+            line-height: 1;
+        }
+
+        .typing-stat .lbl {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* Empty state per section */
+        .empty-section {
+            padding: 2rem 1.8rem;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        /* Date chip */
+        .date-chip {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            background: #f8fafc;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+
+        /* Bottom nav */
+        .bottom-nav {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            padding: 0.9rem 2rem;
+            background: #222;
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #444;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            padding: 0.9rem 2rem;
+            border: 2px solid #222;
+            color: #222;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .btn-outline:hover {
+            background: #222;
+            color: white;
+        }
+
+        @media (max-width: 640px) {
+            .stats-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .typing-entry {
+                grid-template-columns: auto auto;
+                grid-template-rows: auto auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">
+            <div class="logo-icon">P</div>
+            Predictamind
+        </a>
+        <a href="select_test.html" class="nav-back">← Back to Tests</a>
+    </nav>
+
+    <div class="page-wrap">
+        <div class="page-header">
+            <span class="section-label">Patient Portal</span>
+            <h1>My Test History</h1>
+            <div id="patientPill" class="patient-pill" style="display:none;">
+                <span>👤</span>
+                <span id="patientName">—</span>
+            </div>
+        </div>
+
+        <!-- No session state -->
+        <div id="noSession" class="no-session" style="display:none;">
+            <p style="font-size:1.1rem;font-weight:600;margin-bottom:0.5rem;">No active session found.</p>
+            <p>Please <a href="register.html">register first</a> to view your test history.</p>
+        </div>
+
+        <!-- Main content (shown when logged in) -->
+        <div id="mainContent" style="display:none;">
+
+            <!-- Stats bar -->
+            <div class="stats-bar">
+                <div class="stat-card">
+                    <div class="stat-icon">🧠</div>
+                    <div class="stat-num" id="mriCount">0</div>
+                    <div class="stat-lbl">MRI Scans</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👁️</div>
+                    <div class="stat-num" id="blinkCount">0</div>
+                    <div class="stat-lbl">Blink Tests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⌨️</div>
+                    <div class="stat-num" id="typingCount">0</div>
+                    <div class="stat-lbl">Typing Tests</div>
+                </div>
+            </div>
+
+            <!-- MRI Section -->
+            <div class="history-section">
+                <div class="section-head">
+                    <div class="section-icon" style="background:#dbeafe;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2.2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <ellipse cx="12" cy="12" rx="10" ry="10" />
+                            <path
+                                d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                        </svg>
+                    </div>
+                    <h2>Brain MRI Scans</h2>
+                    <span class="badge-count" id="mriCountBadge">0</span>
+                </div>
+                <div class="entries" id="mriEntries">
+                    <div class="empty-section">No MRI scans uploaded yet.</div>
+                </div>
+            </div>
+
+            <!-- Blink Section -->
+            <div class="history-section">
+                <div class="section-head">
+                    <div class="section-icon" style="background:#fef3c7;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2.2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
+                    </div>
+                    <h2>Blink Detection Tests</h2>
+                    <span class="badge-count" id="blinkCountBadge">0</span>
+                </div>
+                <div class="entries" id="blinkEntries">
+                    <div class="empty-section">No blink tests recorded yet.</div>
+                </div>
+            </div>
+
+            <!-- Typing Section -->
+            <div class="history-section">
+                <div class="section-head">
+                    <div class="section-icon" style="background:#dcfce7;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="3" width="20" height="14" rx="2" />
+                            <path d="M8 21h8M12 17v4" />
+                        </svg>
+                    </div>
+                    <h2>Typing Speed Tests</h2>
+                    <span class="badge-count" id="typingCountBadge">0</span>
+                </div>
+                <div class="entries" id="typingEntries">
+                    <div class="empty-section">No typing tests recorded yet.</div>
+                </div>
+            </div>
+
+            <div class="bottom-nav">
+                <a href="select_test.html" class="btn-primary">Take More Tests</a>
+                <a href="results.html" class="btn-outline">View Summary</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const patientId = sessionStorage.getItem('patient_id');
+        const patientName = sessionStorage.getItem('patient_name') || 'Patient';
+
+        if (!patientId) {
+            document.getElementById('noSession').style.display = 'block';
+        } else {
+            document.getElementById('patientPill').style.display = 'inline-flex';
+            document.getElementById('patientName').textContent = patientName;
+            loadHistory(patientId);
+        }
+
+        async function loadHistory(id) {
+            try {
+                const res = await fetch(`/get_patient/${id}`);
+                if (!res.ok) throw new Error('Failed to fetch');
+                const data = await res.json();
+                document.getElementById('mainContent').style.display = 'block';
+                renderMRI(data.scans || []);
+                renderBlink(data.blink_results || []);
+                renderTyping(data.typing_results || []);
+            } catch (e) {
+                document.getElementById('noSession').style.display = 'block';
+                document.getElementById('noSession').innerHTML = `<p>Error loading history. Make sure the server is running.</p>`;
+            }
+        }
+
+        function mriClass(cls) {
+            if (!cls) return 'normal';
+            const c = cls.toLowerCase();
+            if (c.includes('nondemented') || c.includes('normal') || c.includes('no')) return 'normal';
+            if (c.includes('veryMild') || c.includes('very mild') || c.includes('mild')) return 'mild';
+            if (c.includes('moderate')) return 'moderate';
+            if (c.includes('severe') || c.includes('demented')) return 'severe';
+            return 'normal';
+        }
+
+        function renderMRI(scans) {
+            const el = document.getElementById('mriEntries');
+            document.getElementById('mriCount').textContent = scans.length;
+            document.getElementById('mriCountBadge').textContent = scans.length;
+            if (!scans.length) return;
+            el.innerHTML = scans.map(s => `
+                <div class="entry-row mri-entry">
+                    <div>
+                        <div style="font-weight:600;margin-bottom:0.2rem;">${s.scan_type || 'MRI'} Scan</div>
+                        <div style="font-size:0.82rem;color:#64748b;">Scan date: ${s.scan_date || '—'}</div>
+                    </div>
+                    <div>
+                        <span class="mri-class ${mriClass(s.predicted_class)}">${s.predicted_class || 'No result'}</span>
+                        ${s.confidence ? `<span style="font-size:0.8rem;color:#94a3b8;margin-left:0.5rem;">${s.confidence}% confidence</span>` : ''}
+                    </div>
+                    <span class="date-chip">${s.created_at}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderBlink(results) {
+            const el = document.getElementById('blinkEntries');
+            document.getElementById('blinkCount').textContent = results.length;
+            document.getElementById('blinkCountBadge').textContent = results.length;
+            if (!results.length) return;
+            el.innerHTML = results.map(r => `
+                <div class="entry-row blink-entry">
+                    <div class="blink-num">${r.blink_count}</div>
+                    <div>
+                        <div style="font-weight:600;">Blinks detected</div>
+                        <div style="font-size:0.82rem;color:#64748b;">in ${r.duration || 30}s session</div>
+                    </div>
+                    <span class="date-chip">${r.created_at}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderTyping(results) {
+            const el = document.getElementById('typingEntries');
+            document.getElementById('typingCount').textContent = results.length;
+            document.getElementById('typingCountBadge').textContent = results.length;
+            if (!results.length) return;
+            el.innerHTML = results.map(r => `
+                <div class="entry-row typing-entry">
+                    <div class="typing-stat">
+                        <div class="big">${Math.round(r.wpm)}</div>
+                        <div class="lbl">WPM</div>
+                    </div>
+                    <div class="typing-stat">
+                        <div class="big" style="color:#15803d;">${r.accuracy}%</div>
+                        <div class="lbl">Accuracy</div>
+                    </div>
+                    <div></div>
+                    <span class="date-chip">${r.created_at}</span>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+
+</html>
