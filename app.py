@@ -178,8 +178,31 @@ def get_patients():
 
 @app.route('/get_patient/<int:patient_id>', methods=['GET'])
 def get_patient(patient_id):
-    """Return details for a single patient."""
+    """Return details for a single patient including all test history."""
     p = Patient.query.get_or_404(patient_id)
+    scans = [{
+        'id': s.id,
+        'scan_type': s.scan_type,
+        'scan_date': s.scan_date,
+        'predicted_class': s.predicted_class,
+        'confidence': round(s.confidence * 100, 1) if s.confidence else None,
+        'created_at': s.created_at.strftime('%d %b %Y, %H:%M') if s.created_at else ''
+    } for s in p.scans]
+
+    blinks = [{
+        'id': b.id,
+        'blink_count': b.blink_count,
+        'duration': b.duration,
+        'created_at': b.created_at.strftime('%d %b %Y, %H:%M') if b.created_at else ''
+    } for b in p.blink_results]
+
+    typings = [{
+        'id': t.id,
+        'wpm': t.wpm,
+        'accuracy': t.accuracy,
+        'created_at': t.created_at.strftime('%d %b %Y, %H:%M') if t.created_at else ''
+    } for t in p.typing_results]
+
     return jsonify({
         'id': p.id,
         'name': p.name,
@@ -188,7 +211,10 @@ def get_patient(patient_id):
         'email': p.email,
         'phone': p.phone,
         'address': p.address,
-        'registered_at': p.created_at.strftime('%Y-%m-%d %H:%M') if p.created_at else ''
+        'registered_at': p.created_at.strftime('%d %b %Y, %H:%M') if p.created_at else '',
+        'scans': scans,
+        'blink_results': blinks,
+        'typing_results': typings
     })
 
 
