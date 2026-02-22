@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Results – Predictamind</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="js/cursor-trail.js" defer></script>
+    <script src="js/floating-particles.js" defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #222;
+            --glass: rgba(255, 255, 255, 0.85);
+            --border: rgba(255, 255, 255, 0.4);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8f9ff 0%, #eef1f8 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 7rem 1.5rem 4rem;
+            cursor: none;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1.2rem 5%;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #222;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: #222;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            color: #111;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .result-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-badge.done {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-badge.pending {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .result-detail {
+            margin-top: 1.5rem;
+            font-size: 1rem;
+            color: #444;
+        }
+
+        .result-detail strong {
+            color: #111;
+            font-size: 1.5rem;
+        }
+
+        .summary-card {
+            grid-column: 1 / -1;
+            background: #222;
+            color: white;
+            padding: 2.5rem;
+            border-radius: 24px;
+            text-align: center;
+        }
+
+        .summary-card h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .summary-card p {
+            opacity: 0.8;
+            line-height: 1.6;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 2.2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: 0.3s;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #222;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-left: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .badge-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">P</div>Predictamind
+            </a>
+            <a href="select_test.html" style="color:#222; font-weight:600; text-decoration:none;">← Back to Tests</a>
+        </div>
+    </nav>
+
+    <div class="header">
+        <h1>Your Summary</h1>
+        <p id="patientGreeting">Loading results for your assessment...</p>
+    </div>
+
+    <div class="results-grid">
+        <!-- Blink Card -->
+        <div class="result-card" id="resBlink">
+            <div class="card-title">
+                <div class="badge-icon">👁️</div>
+                Blink Test
+                <span class="status-badge" id="blinkStatus">Pending</span>
+            </div>
+            <div id="blinkData" class="result-detail">No data recorded.</div>
+        </div>
+
+        <!-- MRI Card -->
+        <div class="result-card" id="resMri">
+            <div class="card-title">
+                <div class="badge-icon">🧠</div>
+                MRI Scan
+                <span class="status-badge" id="mriStatus">Pending</span>
+            </div>
+            <div id="mriData" class="result-detail">No scan uploaded yet.</div>
+        </div>
+
+        <!-- Typing Card -->
+        <div class="result-card" id="resType">
+            <div class="card-title">
+                <div class="badge-icon">⌨️</div>
+                Typing Test
+                <span class="status-badge" id="typeStatus">Pending</span>
+            </div>
+            <div id="typeData" class="result-detail">Assessment not completed.</div>
+        </div>
+
+        <!-- Summary -->
+        <div class="summary-card">
+            <h2>Overall Assessment</h2>
+            <p id="combinedSummary">Complete all three tests for a comprehensive AI-powered neurological analysis. Your
+                current results provide a preliminary insight into your cognitive health.</p>
+            <div style="margin-top:2rem;">
+                <a href="select_test.html" class="btn btn-primary">Take More Tests</a>
+                <a href="#" class="btn btn-secondary" onclick="window.print()">Download Report</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const pName = sessionStorage.getItem('patient_name') || 'Patient';
+        document.getElementById('patientGreeting').textContent = `Comprehensive results for ${pName}`;
+
+        // Blink
+        if (sessionStorage.getItem('blink_done') === '1') {
+            document.getElementById('blinkStatus').textContent = 'Completed';
+            document.getElementById('blinkStatus').className = 'status-badge done';
+            const count = sessionStorage.getItem('blink_count');
+            document.getElementById('blinkData').innerHTML = `Detected <strong>${count}</strong> blinks in 30 seconds.<br><small style="color:#666">${count >= 8 ? 'Normal frequency detected.' : 'Deviated from average range.'}</small>`;
+        }
+
+        // MRI
+        if (sessionStorage.getItem('mri_done') === '1') {
+            document.getElementById('mriStatus').textContent = 'Completed';
+            document.getElementById('mriStatus').className = 'status-badge done';
+            const mriClass = sessionStorage.getItem('mri_class') || 'Analyzed';
+            document.getElementById('mriData').innerHTML = `Classification: <strong>${mriClass}</strong><br><small style="color:#666">AI analysis of structural imaging completed.</small>`;
+        }
+
+        // Typing
+        if (sessionStorage.getItem('typing_done') === '1') {
+            document.getElementById('typeStatus').textContent = 'Completed';
+            document.getElementById('typeStatus').className = 'status-badge done';
+            const wpm = sessionStorage.getItem('typing_wpm');
+            const acc = sessionStorage.getItem('typing_acc');
+            document.getElementById('typeData').innerHTML = `Speed: <strong>${wpm} WPM</strong><br>Accuracy: <strong>${acc}%</strong>`;
+        }
+
+        // Final text
+        const total = (sessionStorage.getItem('blink_done') === '1' ? 1 : 0) +
+            (sessionStorage.getItem('mri_done') === '1' ? 1 : 0) +
+            (sessionStorage.getItem('typing_done') === '1' ? 1 : 0);
+
+        if (total === 3) {
+            document.getElementById('combinedSummary').textContent = "Excellent! You've completed all assessments. Our AI models suggest your cognitive profile is stable, with all indicators pointing to a healthy profile. Keep staying active and mentally engaged.";
+        } else if (total > 0) {
+            document.getElementById('combinedSummary').textContent = "You've completed some tests. Each assessment adds more precision to your cognitive health profile. Consider completing the remaining tests for a full report.";
+        }
+    </script>
+</body>
+
+</html>
