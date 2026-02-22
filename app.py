@@ -101,6 +101,24 @@ def serve_file(filepath):
 #  PATIENT REGISTRATION
 # ─────────────────────────────────────────
 
+@app.route('/login_patient', methods=['POST'])
+def login_patient():
+    """Look up a patient by email and return their id and name."""
+    data = request.json
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    email = data.get('email', '').strip().lower()
+    if not email:
+        return jsonify({'error': 'Email is required'}), 400
+
+    p = Patient.query.filter(db.func.lower(Patient.email) == email).first()
+    if not p:
+        return jsonify({'error': 'No account found with that email. Please register first.'}), 404
+
+    return jsonify({'patient_id': p.id, 'name': p.name})
+
+
 @app.route('/register_patient', methods=['POST'])
 def register_patient():
     """Register a new patient and return their patient_id."""
