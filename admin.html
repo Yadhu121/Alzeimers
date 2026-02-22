@@ -10,6 +10,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
+    <script src="js/cursor-trail.js" defer></script>
+    <script src="js/floating-particles.js" defer></script>
     <style>
         * {
             margin: 0;
@@ -273,6 +275,36 @@
             align-items: center;
             gap: 0.5rem;
         }
+
+        .btn-delete {
+            background: none;
+            border: 1.5px solid #fca5a5;
+            color: #dc2626;
+            padding: 0.3rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .btn-delete:hover {
+            background: #fef2f2;
+            border-color: #ef4444;
+        }
+
+        @keyframes fadeRowOut {
+            to {
+                opacity: 0;
+                transform: scaleY(0);
+            }
+        }
+
+        tr.deleting {
+            animation: fadeRowOut 0.3s ease forwards;
+            transform-origin: top;
+        }
     </style>
 </head>
 
@@ -329,7 +361,8 @@
                         <th>Age/Gender</th>
                         <th>Tests Done</th>
                         <th>Registration Date</th>
-                        <th></th>
+                        <th>Details</th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody id="patientsBody">
@@ -376,6 +409,7 @@
             body.innerHTML = '';
             data.forEach(p => {
                 const tr = document.createElement('tr');
+                tr.id = `row-${p.id}`;
                 tr.className = 'expandable';
                 tr.onclick = () => toggleRow(p.id);
 
@@ -390,14 +424,16 @@
                     <td>${p.age} / ${p.gender}</td>
                     <td>${tests.join(' ')}</td>
                     <td>${p.registered_at || '—'}</td>
-                    <td style="color:#94a3b8">Details ↓</td>
+                    <td style="color:#94a3b8; cursor:pointer" onclick="toggleRow(${p.id})">Details ↓</td>
+                    <td><button class="btn-delete" onclick="deletePatient(event, ${p.id}, '${p.name}')">Delete</button></td>
                 `;
 
                 const detailTr = document.createElement('tr');
                 detailTr.id = `detail-${p.id}`;
                 detailTr.className = 'details-row';
+                detailTr.setAttribute('colspan-fix', '7');
                 detailTr.innerHTML = `
-                    <td colspan="6">
+                    <td colspan="7">
                         <div class="details-content">
                             <div class="details-grid">
                                 <div class="detail-section">
@@ -437,6 +473,28 @@
         function toggleRow(id) {
             const row = document.getElementById(`detail-${id}`);
             row.style.display = (row.style.display === 'table-row') ? 'none' : 'table-row';
+        }
+
+        async function deletePatient(event, id, name) {
+            event.stopPropagation(); // Don't trigger row expand
+            if (!confirm(`Delete patient "${name}" and all their test data? This cannot be undone.`)) return;
+
+            try {
+                const res = await fetch(`/delete_patient/${id}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error('Server error');
+
+                // Animate rows out
+                const mainRow = document.getElementById(`row-${id}`);
+                const detailRow = document.getElementById(`detail-${id}`);
+                if (mainRow) { mainRow.classList.add('deleting'); setTimeout(() => mainRow.remove(), 310); }
+                if (detailRow) { detailRow.classList.add('deleting'); setTimeout(() => detailRow.remove(), 310); }
+
+                // Update data and stats
+                allPatients = allPatients.filter(p => p.id !== id);
+                updateStats();
+            } catch (e) {
+                alert('Failed to delete patient: ' + e.message);
+            }
         }
 
         function exportCSV() {
