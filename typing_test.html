@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Speed Test – Predictamind</title>
+    <meta name="description" content="Typing speed assessment for Alzheimer's early detection.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script src="js/cursor-trail.js" defer></script>
+    <script src="js/floating-particles.js" defer></script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #222222;
+            --glass-bg: rgba(255, 255, 255, 0.82);
+            --glass-border: rgba(255, 255, 255, 0.6);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8f9ff 0%, #eef1f8 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 1rem 3rem;
+            cursor: none;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1.2rem 5%;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #222;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #222, #444);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .nav-back {
+            padding: 0.6rem 1.5rem;
+            background: #222;
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .nav-back:hover {
+            background: #444;
+            transform: translateY(-2px);
+        }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            margin-top: 6.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-label {
+            display: inline-block;
+            padding: 0.4rem 1.2rem;
+            background: rgba(52, 168, 83, 0.1);
+            color: #34A853;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+        }
+
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* Main card */
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 8px 40px rgba(31, 38, 135, 0.1);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 780px;
+        }
+
+        /* Stats row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem;
+            text-align: center;
+            border: 1.5px solid #f1f5f9;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .stat-label {
+            font-size: 0.78rem;
+            color: #666;
+            font-weight: 600;
+            margin-top: 2px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .stat-value.timing {
+            color: #4285F4;
+        }
+
+        .stat-value.wpm {
+            color: #34A853;
+        }
+
+        .stat-value.acc {
+            color: #EA4335;
+        }
+
+        /* Passage display */
+        .passage-wrapper {
+            margin-bottom: 1.5rem;
+        }
+
+        .passage-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 0.6rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .passage-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            line-height: 1.9;
+            padding: 1.5rem;
+            background: #f8faff;
+            border-radius: 14px;
+            border: 1.5px solid #e2e8f0;
+            user-select: none;
+            letter-spacing: 0.02em;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+            overflow: hidden;
+        }
+
+        .ch {
+            display: inline;
+            transition: color 0.1s, background 0.1s;
+        }
+
+        .ch.correct {
+            color: #34A853;
+        }
+
+        .ch.wrong {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 2px;
+        }
+
+        .ch.current {
+            background: #4285F4;
+            color: white;
+            border-radius: 3px;
+        }
+
+        /* Textarea */
+        .input-wrapper {
+            margin-bottom: 1.5rem;
+        }
+
+        .typing-area {
+            width: 100%;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            line-height: 1.7;
+            padding: 1.2rem 1.4rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            background: white;
+            resize: none;
+            height: 110px;
+            transition: border-color 0.25s, box-shadow 0.25s;
+            color: #222;
+        }
+
+        .typing-area:focus {
+            outline: none;
+            border-color: #4285F4;
+            box-shadow: 0 0 0 4px rgba(66, 133, 244, 0.1);
+        }
+
+        .typing-area:disabled {
+            background: #f1f5f9;
+            cursor: not-allowed;
+        }
+
+        /* Buttons */
+        .btn-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #222, #444);
+            color: white;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+        }
+
+        .btn-reset {
+            background: #f1f5f9;
+            color: #444;
+            border: 1.5px solid #e2e8f0;
+        }
+
+        .btn-reset:hover {
+            background: #e2e8f0;
+        }
+
+        /* Result panel */
+        .result-panel {
+            display: none;
+            margin-top: 1.5rem;
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 1.5px solid #bbf7d0;
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            text-align: center;
+        }
+
+        .result-panel.visible {
+            display: block;
+        }
+
+        .result-panel h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            color: #15803d;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-panel p {
+            color: #166534;
+            font-size: 0.95rem;
+        }
+
+        .result-panel .big-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1rem 0;
+        }
+
+        .big-stat {
+            text-align: center;
+        }
+
+        .big-stat .val {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #15803d;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .big-stat .lbl {
+            font-size: 0.8rem;
+            color: #4ade80;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .btn-next {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.8rem 2rem;
+            background: #15803d;
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .btn-next:hover {
+            background: #166534;
+            transform: translateY(-2px);
+        }
+
+        /* Guard warning */
+        .guard-warning {
+            display: none;
+            background: rgba(254, 242, 242, 0.9);
+            border: 1px solid #fca5a5;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #dc2626;
+            font-size: 0.9rem;
+        }
+
+        .guard-warning.visible {
+            display: block;
+        }
+
+        @media (max-width:600px) {
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-row {
+                flex-direction: column;
+            }
+
+            .page-header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">P</div>
+                Predictamind
+            </a>
+            <a href="select_test.html" class="nav-back">← Back to Tests</a>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <span class="section-label">Cognitive Assessment</span>
+        <h1>Typing Speed Assessment</h1>
+        <p>Type the passage below as quickly and accurately as possible.</p>
+    </div>
+
+    <div class="card">
+        <div class="guard-warning" id="guardWarning">
+            ⚠️ You are not registered. <a href="register.html">Click here to register first.</a>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-value timing" id="timerDisplay">0s</div>
+                <div class="stat-label">Time Elapsed</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value wpm" id="wpmDisplay">0</div>
+                <div class="stat-label">Words / Min</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value acc" id="accDisplay">100%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+        </div>
+
+        <!-- Passage -->
+        <div class="passage-wrapper">
+            <div class="passage-label">📄 Passage to Type</div>
+            <div class="passage-text" id="passageDisplay"></div>
+        </div>
+
+        <!-- Input -->
+        <div class="input-wrapper">
+            <textarea class="typing-area" id="typingArea" placeholder="Click 'Start Test' then begin typing here..."
+                disabled></textarea>
+        </div>
+
+        <!-- Buttons -->
+        <div class="btn-row">
+            <button class="btn btn-start" id="startBtn">▶ Start Test</button>
+            <button class="btn btn-reset" id="resetBtn">↺ Reset</button>
+        </div>
+
+        <!-- Result -->
+        <div class="result-panel" id="resultPanel">
+            <h3>Test Complete!</h3>
+            <div class="big-stats">
+                <div class="big-stat">
+                    <div class="val" id="finalWpm">–</div>
+                    <div class="lbl">WPM</div>
+                </div>
+                <div class="big-stat">
+                    <div class="val" id="finalAcc">–</div>
+                    <div class="lbl">Accuracy</div>
+                </div>
+                <div class="big-stat">
+                    <div class="val" id="finalTime">–</div>
+                    <div class="lbl">Seconds</div>
+                </div>
+            </div>
+            <p id="savedMsg">Saving your results…</p>
+            <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;">
+                <a href="select_test.html" class="btn-next" style="background:#555;">Take Another Test</a>
+                <a href="results.html" class="btn-next">View My Results</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── Passage pool ─────────────────────────────────────────
+        const passages = [
+            "The brain is a remarkable organ that controls all aspects of our body. Early detection of neurological changes can significantly improve treatment outcomes and quality of life for patients.",
+            "Memory is a complex process that involves encoding, storing, and retrieving information. Changes in memory patterns can serve as early indicators of cognitive decline in aging adults.",
+            "Regular physical exercise and mental stimulation have been shown to reduce the risk of cognitive diseases. Activities such as reading, puzzles, and social interaction keep the brain healthy.",
+            "The human nervous system is an intricate network of cells that transmit signals throughout the body. Understanding how neurons communicate helps researchers develop better treatments for brain diseases."
+        ];
+
+        const passage = passages[Math.floor(Math.random() * passages.length)];
+
+        // ── State ────────────────────────────────────────────────
+        let started = false, finished = false;
+        let startTime = null, elapsed = 0, timerInterval = null;
+
+        // ── Elements ─────────────────────────────────────────────
+        const passageDisplay = document.getElementById('passageDisplay');
+        const typingArea = document.getElementById('typingArea');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const resultPanel = document.getElementById('resultPanel');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const wpmDisplay = document.getElementById('wpmDisplay');
+        const accDisplay = document.getElementById('accDisplay');
+
+        // ── Render passage characters ─────────────────────────────
+        function renderPassage(typed) {
+            passageDisplay.innerHTML = passage.split('').map((ch, i) => {
+                let cls = 'ch';
+                if (i < typed.length) {
+                    cls += typed[i] === ch ? ' correct' : ' wrong';
+                } else if (i === typed.length) {
+                    cls += ' current';
+                }
+                return `<span class="${cls}">${ch === ' ' ? '&nbsp;' : ch}</span>`;
+            }).join('');
+        }
+        renderPassage('');
+
+        // ── Timer ─────────────────────────────────────────────────
+        function startTimer() {
+            startTime = Date.now();
+            timerInterval = setInterval(() => {
+                elapsed = Math.floor((Date.now() - startTime) / 1000);
+                timerDisplay.textContent = elapsed + 's';
+            }, 500);
+        }
+
+        function stopTimer() { clearInterval(timerInterval); }
+
+        // ── Stats calc ────────────────────────────────────────────
+        function calcStats(typed) {
+            const totalChars = typed.length;
+            let correct = 0;
+            for (let i = 0; i < totalChars; i++) {
+                if (typed[i] === passage[i]) correct++;
+            }
+            const accuracy = totalChars === 0 ? 100 : Math.round((correct / totalChars) * 100);
+            const minutes = (Date.now() - startTime) / 60000;
+            const words = typed.trim().split(/\s+/).filter(w => w).length;
+            const wpm = minutes > 0 ? Math.round(words / minutes) : 0;
+            return { wpm, accuracy };
+        }
+
+        // ── Input handler ─────────────────────────────────────────
+        typingArea.addEventListener('input', () => {
+            if (!started || finished) return;
+            const typed = typingArea.value;
+            renderPassage(typed);
+
+            const { wpm, accuracy } = calcStats(typed);
+            wpmDisplay.textContent = wpm;
+            accDisplay.textContent = accuracy + '%';
+
+            // Finished?
+            if (typed.length >= passage.length) {
+                finishTest(typed);
+            }
+        });
+
+        // ── Finish ────────────────────────────────────────────────
+        async function finishTest(typed) {
+            finished = true;
+            stopTimer();
+            typingArea.disabled = true;
+
+            const { wpm, accuracy } = calcStats(typed);
+            elapsed = Math.floor((Date.now() - startTime) / 1000);
+
+            document.getElementById('finalWpm').textContent = wpm;
+            document.getElementById('finalAcc').textContent = accuracy + '%';
+            document.getElementById('finalTime').textContent = elapsed + 's';
+            resultPanel.classList.add('visible');
+
+            // Mark typing test as done in session
+            sessionStorage.setItem('typing_done', '1');
+            sessionStorage.setItem('typing_wpm', wpm);
+            sessionStorage.setItem('typing_acc', accuracy);
+
+            // Save to server
+            const patientId = sessionStorage.getItem('patient_id');
+            if (patientId) {
+                try {
+                    await fetch('/save_typing_result', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            patient_id: parseInt(patientId),
+                            wpm, accuracy,
+                            test_text: passage
+                        })
+                    });
+                    document.getElementById('savedMsg').textContent = 'Results saved to your profile.';
+                } catch {
+                    document.getElementById('savedMsg').textContent = 'Could not save results (server offline).';
+                }
+            } else {
+                document.getElementById('savedMsg').textContent = 'Not registered — results not saved.';
+            }
+        }
+
+        // ── Start button ──────────────────────────────────────────
+        startBtn.addEventListener('click', () => {
+            if (started) return;
+            started = true;
+            typingArea.disabled = false;
+            typingArea.focus();
+            typingArea.placeholder = 'Start typing now…';
+            startBtn.disabled = true;
+            startBtn.textContent = '⏱ In Progress…';
+            startTimer();
+        });
+
+        // ── Reset button ──────────────────────────────────────────
+        resetBtn.addEventListener('click', () => {
+            started = false; finished = false;
+            stopTimer(); elapsed = 0;
+            typingArea.value = '';
+            typingArea.disabled = true;
+            typingArea.placeholder = "Click 'Start Test' then begin typing here...";
+            startBtn.disabled = false;
+            startBtn.textContent = '▶ Start Test';
+            timerDisplay.textContent = '0s';
+            wpmDisplay.textContent = '0';
+            accDisplay.textContent = '100%';
+            resultPanel.classList.remove('visible');
+            renderPassage('');
+        });
+
+        // ── Guard ─────────────────────────────────────────────────
+        if (!sessionStorage.getItem('patient_id')) {
+            document.getElementById('guardWarning').classList.add('visible');
+        }
+    </script>
+</body>
+
+</html>
