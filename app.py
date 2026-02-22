@@ -192,6 +192,23 @@ def get_patient(patient_id):
     })
 
 
+@app.route('/delete_patient/<int:patient_id>', methods=['DELETE'])
+def delete_patient(patient_id):
+    """Delete a patient and all their associated test results."""
+    p = Patient.query.get_or_404(patient_id)
+    try:
+        # Cascade delete child records first (synchronize_session=False avoids session conflicts)
+        BlinkResult.query.filter_by(patient_id=patient_id).delete(synchronize_session=False)
+        TypingResult.query.filter_by(patient_id=patient_id).delete(synchronize_session=False)
+        Scan.query.filter_by(patient_id=patient_id).delete(synchronize_session=False)
+        db.session.delete(p)
+        db.session.commit()
+        return jsonify({'status': 'deleted', 'id': patient_id})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
 # ─────────────────────────────────────────
 #  MRI PREDICTION
 # ─────────────────────────────────────────
