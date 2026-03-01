@@ -8,6 +8,7 @@ import os
 import uuid
 from datetime import datetime
 from blink_model import BlinkDetector
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 
@@ -26,6 +27,7 @@ class Patient(db.Model):
     age = db.Column(db.Integer)
     gender = db.Column(db.String(20))
     email = db.Column(db.String(200))
+    password = db.Column(db.String(255), nullable=True)
     phone = db.Column(db.String(50))
     address = db.Column(db.String(500))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -60,6 +62,13 @@ class TypingResult(db.Model):
     wpm = db.Column(db.Float)
     accuracy = db.Column(db.Float)
     test_text = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class Admin(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(200), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -98,6 +107,56 @@ def serve_file(filepath):
 
 
 # ─────────────────────────────────────────
+#  ADMIN LOGIN
+# ─────────────────────────────────────────
+
+@app.route('/admin_login', methods=['POST'])
+def admin_login():
+    """Verify admin credentials."""
+    data = request.json
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    email = data.get('email', '').strip().lower()
+    password = data.get('password', '')
+
+    if not email or not password:
+        return jsonify({'error': 'Email and Password are required'}), 400
+
+    admin = Admin.query.filter(db.func.lower(Admin.email) == email).first()
+    if not admin or not check_password_hash(admin.password, password):
+        return jsonify({'error': 'Invalid admin credentials.'}), 401
+
+    return jsonify({'status': 'ok', 'admin_id': admin.id})
+
+
+@app.route('/register_admin', methods=['POST'])
+def register_admin():
+    """Register a new admin account. Only works if no admin exists yet."""
+    data = request.json
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    email = data.get('email', '').strip().lower()
+    password = data.get('password', '')
+
+    if not email or not password:
+        return jsonify({'error': 'Email and Password are required'}), 400
+
+    existing = Admin.query.first()
+    if existing:
+        return jsonify({'error': 'Admin account already exists. Contact your administrator.'}), 403
+
+    admin = Admin(
+        email=email,
+        password=generate_password_hash(password)
+    )
+    db.session.add(admin)
+    db.session.commit()
+    return jsonify({'status': 'created', 'admin_id': admin.id})
+
+
+# ─────────────────────────────────────────
 #  PATIENT REGISTRATION
 # ─────────────────────────────────────────
 
@@ -109,12 +168,27 @@ def login_patient():
         return jsonify({'error': 'No data provided'}), 400
 
     email = data.get('email', '').strip().lower()
-    if not email:
-        return jsonify({'error': 'Email is required'}), 400
+    password = data.get('password', '')
 
-    p = Patient.query.filter(db.func.lower(Patient.email) == email).first()
+    if not email or not password:
+        return jsonify({'error': 'Email and Password are required'}), 400
+
+    # Find the most recent patient with this email that has a password set
+    p = Patient.query.filter(
+        db.func.lower(Patient.email) == email,
+        Patient.password.isnot(None),
+        Patient.password != ''
+    ).order_by(Patient.id.desc()).first()
+
     if not p:
+        # Check if there's an account without a password (legacy)
+        legacy = Patient.query.filter(db.func.lower(Patient.email) == email).first()
+        if legacy:
+            return jsonify({'error': 'Your account was created before passwords were required. Please re-register with a password.'}), 401
         return jsonify({'error': 'No account found with that email. Please register first.'}), 404
+
+    if not check_password_hash(p.password, password):
+        return jsonify({'error': 'Invalid email or password.'}), 401
 
     return jsonify({'patient_id': p.id, 'name': p.name})
 
@@ -127,14 +201,18 @@ def register_patient():
         return jsonify({'error': 'No data provided'}), 400
 
     name = data.get('name', '').strip()
-    if not name:
-        return jsonify({'error': 'Name is required'}), 400
+    password = data.get('password', '')
+    if not name or not password:
+        return jsonify({'error': 'Name and Password are required'}), 400
+
+    hashed_password = generate_password_hash(password)
 
     patient = Patient(
         name=name,
         age=data.get('age'),
         gender=data.get('gender', ''),
         email=data.get('email', ''),
+        password=hashed_password,
         phone=data.get('phone', ''),
         address=data.get('address', '')
     )
@@ -408,6 +486,11 @@ def save_typing_result():
 
 if __name__ == '__main__':
     with app.app_context():
+        try:
+            db.session.execute(db.text('ALTER TABLE patient ADD COLUMN password VARCHAR(255)'))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
         db.create_all()
 
     app.run(debug=True, use_reloader=False, port=5000)
