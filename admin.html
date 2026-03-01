@@ -345,10 +345,17 @@
                 style="margin: 0 auto 1.5rem; width: 60px; height: 60px; font-size: 1.5rem; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.2);">
                 P</div>
             <h2>Admin Portal</h2>
-            <p class="sub">Enter your access code to continue</p>
-            <input type="password" id="adminPass" class="login-input" placeholder="••••••••"
+            <p class="sub">Enter your admin credentials to continue</p>
+            <input type="email" id="adminEmail" class="login-input" placeholder="Admin email"
+                onkeydown="if(event.key==='Enter') document.getElementById('adminPass').focus()">
+            <input type="password" id="adminPass" class="login-input" placeholder="Password"
                 onkeydown="if(event.key==='Enter') unlock()">
-            <button class="btn-unlock" onclick="unlock()">Access Dashboard →</button>
+            <div id="adminError" style="color:#ff6b6b;font-size:0.85rem;margin-bottom:1rem;display:none;"></div>
+            <button class="btn-unlock" id="unlockBtn" onclick="unlock()">Access Dashboard →</button>
+            <p style="margin-top:1.2rem;font-size:0.8rem;color:rgba(255,255,255,0.35);" id="setupHint">
+                First time? <a href="#" onclick="setupAdmin();return false;"
+                    style="color:rgba(255,255,255,0.6);text-decoration:underline;">Create admin account</a>
+            </p>
         </div>
     </div>
 
@@ -408,11 +415,82 @@
     <script>
         let allPatients = [];
 
-        function unlock() {
-            if (document.getElementById('adminPass').value === 'admin123') {
+        async function unlock() {
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPass').value;
+            const errEl = document.getElementById('adminError');
+            const btn = document.getElementById('unlockBtn');
+            errEl.style.display = 'none';
+
+            if (!email || !password) {
+                errEl.textContent = 'Please enter both email and password.';
+                errEl.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Verifying…';
+
+            try {
+                const res = await fetch('/admin_login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    errEl.textContent = data.error || 'Invalid credentials.';
+                    errEl.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Access Dashboard →';
+                    return;
+                }
+
                 document.getElementById('loginOverlay').style.display = 'none';
                 fetchData();
-            } else { alert('Incorrect Access Code'); }
+            } catch (e) {
+                errEl.textContent = 'Server error. Make sure Flask is running.';
+                errEl.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Access Dashboard →';
+            }
+        }
+
+        async function setupAdmin() {
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPass').value;
+            const errEl = document.getElementById('adminError');
+            errEl.style.display = 'none';
+
+            if (!email || !password) {
+                errEl.textContent = 'Enter an email and password to create your admin account.';
+                errEl.style.display = 'block';
+                return;
+            }
+
+            try {
+                const res = await fetch('/register_admin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    errEl.textContent = data.error || 'Registration failed.';
+                    errEl.style.display = 'block';
+                    return;
+                }
+
+                errEl.style.color = '#4ade80';
+                errEl.textContent = 'Admin account created! Click "Access Dashboard" to log in.';
+                errEl.style.display = 'block';
+                document.getElementById('setupHint').style.display = 'none';
+            } catch (e) {
+                errEl.textContent = 'Server error.';
+                errEl.style.display = 'block';
+            }
         }
 
         async function fetchData() {
