@@ -421,8 +421,12 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" class="form-input" id="email" placeholder="patient@example.com">
+                    <label class="form-label">Email Address <span>*</span></label>
+                    <input type="email" class="form-input" id="email" placeholder="patient@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password <span>*</span></label>
+                    <input type="password" class="form-input" id="password" placeholder="Create a password" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Phone Number</label>
@@ -477,10 +481,11 @@
             const age = document.getElementById('age').value;
             const gender = document.getElementById('gender').value;
             const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
             const phone = document.getElementById('phone').value.trim();
             const address = document.getElementById('address').value.trim();
 
-            if (!name || !age || !gender) {
+            if (!name || !age || !gender || !email || !password) {
                 errorMsg.textContent = 'Please fill in all required fields.';
                 errorMsg.classList.add('visible');
                 return;
@@ -494,7 +499,7 @@
                 const res = await fetch('/register_patient', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, age: parseInt(age), gender, email, phone, address })
+                    body: JSON.stringify({ name, age: parseInt(age), gender, email, password, phone, address })
                 });
 
                 const data = await res.json();
