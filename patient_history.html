@@ -407,7 +407,11 @@
             <div class="logo-icon">P</div>
             Predictamind
         </a>
-        <a href="select_test.html" class="nav-back">← Back to Tests</a>
+        <div style="display:flex;gap:0.8rem;align-items:center;">
+            <a href="select_test.html" class="nav-back">← Dashboard</a>
+            <a href="#" class="nav-back" onclick="sessionStorage.clear();window.location.href='login.html';"
+                style="background:#dc2626;">Logout</a>
+        </div>
     </nav>
 
     <div class="page-wrap">
@@ -504,7 +508,7 @@
             </div>
 
             <div class="bottom-nav">
-                <a href="select_test.html" class="btn-primary">Take More Tests</a>
+                <a href="select_test.html" class="btn-primary">Dashboard</a>
                 <a href="results.html" class="btn-outline">View Summary</a>
             </div>
         </div>

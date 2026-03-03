@@ -390,12 +390,17 @@
         <div class="step-line"></div>
         <div class="step">
             <div class="step-dot">2</div>
-            <span class="step-label">Select Test</span>
+            <span class="step-label">Blink Test</span>
         </div>
         <div class="step-line"></div>
         <div class="step">
             <div class="step-dot">3</div>
-            <span class="step-label">Analysis</span>
+            <span class="step-label">Typing Test</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+            <div class="step-dot">4</div>
+            <span class="step-label">Results</span>
         </div>
     </div>
 
@@ -443,7 +448,7 @@
             </div>
 
             <button type="submit" class="submit-btn" id="submitBtn">
-                Continue to Test Selection →
+                Continue to Blink Test →
             </button>
 
             <div class="error-msg" id="errorMsg"></div>
@@ -466,7 +471,14 @@
             // Clear all session data so the new patient starts fresh
             sessionStorage.clear();
         } else if (sessionStorage.getItem('patient_id')) {
-            window.location.href = 'select_test.html';
+            // Redirect based on test progress
+            if (sessionStorage.getItem('blink_done') !== '1') {
+                window.location.href = 'blink_detection.html';
+            } else if (sessionStorage.getItem('typing_done') !== '1') {
+                window.location.href = 'typing_test.html';
+            } else {
+                window.location.href = 'select_test.html';
+            }
         }
 
         const form = document.getElementById('registerForm');
@@ -511,14 +523,14 @@
                 sessionStorage.setItem('patient_id', data.patient_id);
                 sessionStorage.setItem('patient_name', data.name);
 
-                window.location.href = 'select_test.html';
+                window.location.href = 'blink_detection.html';
 
             } catch (err) {
                 errorMsg.textContent = err.message || 'Server error. Make sure Flask is running.';
                 errorMsg.classList.add('visible');
                 submitBtn.disabled = false;
                 submitBtn.classList.remove('loading');
-                submitBtn.innerHTML = 'Continue to Test Selection →';
+                submitBtn.innerHTML = 'Continue to Blink Test →';
             }
         });
     </script>
