@@ -130,9 +130,20 @@ def admin_login():
     return jsonify({'status': 'ok', 'admin_id': admin.id})
 
 
+@app.route('/admin_exists', methods=['GET'])
+def admin_exists():
+    """Check whether at least one admin account exists."""
+    exists = Admin.query.first() is not None
+    return jsonify({'exists': exists})
+
+
 @app.route('/register_admin', methods=['POST'])
 def register_admin():
-    """Register a new admin account. Only works if no admin exists yet."""
+    """Register a new admin account.
+    - If no admin exists yet, anyone can create the first one (setup).
+    - If an admin already exists, the request must include a valid admin_id
+      (i.e. an existing admin is adding a new one from the dashboard).
+    """
     data = request.json
     if not data:
         return jsonify({'error': 'No data provided'}), 400
@@ -145,7 +156,18 @@ def register_admin():
 
     existing = Admin.query.first()
     if existing:
-        return jsonify({'error': 'Admin account already exists. Contact your administrator.'}), 403
+        # Only allow if an authenticated admin is adding a new one
+        admin_id = data.get('admin_id')
+        if not admin_id:
+            return jsonify({'error': 'Admin account already exists. Log in to add more admins.'}), 403
+        requesting_admin = Admin.query.get(admin_id)
+        if not requesting_admin:
+            return jsonify({'error': 'Invalid admin session.'}), 403
+
+    # Check for duplicate email
+    dup = Admin.query.filter(db.func.lower(Admin.email) == email).first()
+    if dup:
+        return jsonify({'error': 'An admin with this email already exists.'}), 409
 
     admin = Admin(
         email=email,

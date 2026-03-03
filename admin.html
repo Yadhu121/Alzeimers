@@ -365,6 +365,8 @@
         </a>
         <div style="display:flex;gap:0.8rem;align-items:center;">
             <a href="#" class="btn-csv" onclick="exportCSV()">Export CSV</a>
+            <a href="#" class="btn-csv" style="background:#1d4ed8;"
+                onclick="document.getElementById('addAdminSection').scrollIntoView({behavior:'smooth'})">+ Add Admin</a>
             <a href="#" class="btn-csv" onclick="adminLogout()" style="background:#dc2626;">Logout</a>
         </div>
     </nav>
@@ -413,10 +415,47 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Add Admin Section -->
+        <div id="addAdminSection"
+            style="background:white;border-radius:24px;padding:2rem;box-shadow:0 4px 20px rgba(0,0,0,0.03);margin-top:2rem;">
+            <h2 style="font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:1rem;">Add New Admin</h2>
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;">
+                <div style="flex:1;min-width:200px;">
+                    <label
+                        style="font-size:0.8rem;font-weight:600;color:#64748b;text-transform:uppercase;display:block;margin-bottom:0.4rem;">Email</label>
+                    <input type="email" id="newAdminEmail" placeholder="admin@example.com"
+                        style="width:100%;padding:0.8rem 1rem;border:1px solid #e2e8f0;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;">
+                </div>
+                <div style="flex:1;min-width:200px;">
+                    <label
+                        style="font-size:0.8rem;font-weight:600;color:#64748b;text-transform:uppercase;display:block;margin-bottom:0.4rem;">Password</label>
+                    <input type="password" id="newAdminPass" placeholder="Strong password"
+                        style="width:100%;padding:0.8rem 1rem;border:1px solid #e2e8f0;border-radius:12px;font-size:0.95rem;font-family:'DM Sans',sans-serif;">
+                </div>
+                <button onclick="addNewAdmin()"
+                    style="padding:0.8rem 1.8rem;background:#1d4ed8;color:white;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.95rem;transition:0.2s;">Create
+                    Admin</button>
+            </div>
+            <div id="addAdminMsg" style="margin-top:0.8rem;font-size:0.88rem;display:none;"></div>
+        </div>
     </main>
 
     <script>
         let allPatients = [];
+        let currentAdminId = null;
+
+        // On load: check if admin exists and hide setup link if so
+        (async function checkAdminExists() {
+            try {
+                const res = await fetch('/admin_exists');
+                const data = await res.json();
+                if (data.exists) {
+                    const hint = document.getElementById('setupHint');
+                    if (hint) hint.style.display = 'none';
+                }
+            } catch (e) { /* ignore */ }
+        })();
 
         async function unlock() {
             const email = document.getElementById('adminEmail').value.trim();
@@ -451,6 +490,7 @@
                 }
 
                 document.getElementById('loginOverlay').style.display = 'none';
+                currentAdminId = data.admin_id;
                 fetchData();
             } catch (e) {
                 errEl.textContent = 'Server error. Make sure Flask is running.';
@@ -626,15 +666,57 @@
 
         document.getElementById('patientSearch').oninput = (e) => {
             const term = e.target.value.toLowerCase();
-            const filtered = allPatients.filter(p =>
-                p.name.toLowerCase().includes(term) ||
-                p.email.toLowerCase().includes(term)
-            );
+            if (!term) { renderTable(allPatients); return; }
+            const filtered = allPatients.filter(p => {
+                const name = (p.name || '').toLowerCase();
+                const email = (p.email || '').toLowerCase();
+                const diagnosis = (p.scans || []).map(s => (s.predicted_class || '').toLowerCase()).join(' ');
+                return name.includes(term) || email.includes(term) || diagnosis.includes(term);
+            });
             renderTable(filtered);
         };
 
         function adminLogout() {
+            currentAdminId = null;
             window.location.reload();
+        }
+
+        async function addNewAdmin() {
+            const email = document.getElementById('newAdminEmail').value.trim();
+            const password = document.getElementById('newAdminPass').value;
+            const msgEl = document.getElementById('addAdminMsg');
+            msgEl.style.display = 'none';
+
+            if (!email || !password) {
+                msgEl.textContent = 'Please enter both email and password.';
+                msgEl.style.color = '#dc2626';
+                msgEl.style.display = 'block';
+                return;
+            }
+
+            try {
+                const res = await fetch('/register_admin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, admin_id: currentAdminId })
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    msgEl.textContent = data.error || 'Failed to create admin.';
+                    msgEl.style.color = '#dc2626';
+                } else {
+                    msgEl.textContent = `Admin "${email}" created successfully!`;
+                    msgEl.style.color = '#15803d';
+                    document.getElementById('newAdminEmail').value = '';
+                    document.getElementById('newAdminPass').value = '';
+                }
+                msgEl.style.display = 'block';
+            } catch (e) {
+                msgEl.textContent = 'Server error.';
+                msgEl.style.color = '#dc2626';
+                msgEl.style.display = 'block';
+            }
         }
     </script>
 </body>
