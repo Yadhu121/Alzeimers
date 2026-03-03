@@ -650,6 +650,7 @@
         <div class="action-buttons">
           <button class="action-btn" onclick="downloadReport()">Download Report</button>
           <button class="action-btn" onclick="printReport()">Print Summary</button>
+          <button class="action-btn" onclick="window.location.href='results.html'">View All Results</button>
           <button class="action-btn" onclick="resetAnalysis()">New Examination</button>
         </div>
       </div>
@@ -812,8 +813,15 @@ Disclaimer: Research Use Only.
     }
 
     function resetAnalysis() {
-      if (confirm('Start a new analysis? This will clear the current results.')) {
-        location.reload();
+      if (confirm('Start a new examination? This will clear the current MRI results.')) {
+        sessionStorage.removeItem('predictionClass');
+        sessionStorage.removeItem('predictionConfidence');
+        sessionStorage.removeItem('scanImage');
+        sessionStorage.removeItem('scanDate');
+        sessionStorage.removeItem('scanType');
+        sessionStorage.removeItem('mri_done');
+        sessionStorage.removeItem('mri_class');
+        window.location.href = 'upload.html';
       }
     }
   </script>

@@ -356,6 +356,10 @@
             display: inline-block;
         }
 
+        .test-card.done {
+            border: 2px solid #34A853;
+        }
+
         /* Results CTA bar */
         .results-cta {
             display: none;
@@ -428,14 +432,18 @@
                 <div class="logo-icon">P</div>
                 Predictamind
             </a>
-            <a href="patient_history.html" class="nav-back">📋 My History</a>
+            <div style="display:flex;gap:0.8rem;align-items:center;">
+                <a href="patient_history.html" class="nav-back">📋 My History</a>
+                <a href="#" class="nav-back" onclick="sessionStorage.clear();window.location.href='login.html';"
+                    style="background:#dc2626;">Logout</a>
+            </div>
         </div>
     </nav>
 
     <div class="page-header">
         <span class="welcome-badge" id="welcomeBadge">👋 Welcome, Patient</span>
-        <h1>Choose Your <span class="gradient-text">Assessment</span></h1>
-        <p>Select one of the three tests below. Your details have been securely saved.</p>
+        <h1>Your <span class="gradient-text">Dashboard</span></h1>
+        <p>Both mandatory tests are complete. You can view your results or optionally take the MRI scan.</p>
     </div>
 
     <!-- Progress steps -->
@@ -445,14 +453,19 @@
             <span class="step-label">Register</span>
         </div>
         <div class="step-line done"></div>
-        <div class="step active">
-            <div class="step-dot">2</div>
-            <span class="step-label">Select Test</span>
+        <div class="step done">
+            <div class="step-dot">✓</div>
+            <span class="step-label">Blink Test</span>
         </div>
-        <div class="step-line"></div>
-        <div class="step">
-            <div class="step-dot">3</div>
-            <span class="step-label">Analysis</span>
+        <div class="step-line done"></div>
+        <div class="step done">
+            <div class="step-dot">✓</div>
+            <span class="step-label">Typing Test</span>
+        </div>
+        <div class="step-line" id="mriStepLine"></div>
+        <div class="step" id="mriStep">
+            <div class="step-dot">4</div>
+            <span class="step-label">MRI (Optional)</span>
         </div>
     </div>
 
@@ -460,7 +473,7 @@
 
         <!-- Blink Detection -->
         <a href="blink_detection.html" class="test-card" id="card-blink">
-            <span class="done-badge">Done</span>
+            <span class="done-badge">✓ Completed · Retake</span>
             <div class="card-icon blink">
                 <!-- Eye SVG -->
                 <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -481,12 +494,12 @@
                 Analyze your blink patterns using your webcam. Takes only 30 seconds and can reveal early neurological
                 signs.
             </p>
-            <span class="card-badge blink">~30 seconds</span>
+            <span class="card-badge blink">~30 seconds • Mandatory</span>
         </a>
 
         <!-- MRI Upload -->
         <a href="upload.html" class="test-card" id="card-mri">
-            <span class="done-badge">Done</span>
+            <span class="done-badge">✓ Completed · Retake</span>
             <div class="card-icon mri">
                 <!-- Brain SVG -->
                 <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -504,12 +517,12 @@
             <p class="card-desc">
                 Upload an existing MRI scan for instant AI-powered analysis and classification of Alzheimer's staging.
             </p>
-            <span class="card-badge mri">Upload required</span>
+            <span class="card-badge mri">Upload required • Optional</span>
         </a>
 
         <!-- Typing Speed -->
         <a href="typing_test.html" class="test-card" id="card-typing">
-            <span class="done-badge">Done</span>
+            <span class="done-badge">✓ Completed · Retake</span>
             <div class="card-icon type">
                 <!-- Keyboard SVG -->
                 <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -533,19 +546,20 @@
                 Type a short passage to measure fine motor control and cognitive processing speed — key Alzheimer's
                 indicators.
             </p>
-            <span class="card-badge type">~1 minute</span>
+            <span class="card-badge type">~1 minute • Mandatory</span>
         </a>
 
     </div>
 
-    <!-- Results CTA: shown once at least 1 test done -->
+    <!-- Results CTA: always shown since mandatory tests are done -->
     <div class="results-cta" id="resultsCta">
-        <p>Great job! You have completed at least one assessment. You can view your results now or take more tests.</p>
+        <p>🎉 Great job! You’ve completed both mandatory assessments. View your results or take the optional MRI scan.
+        </p>
         <a href="results.html">View My Results</a>
     </div>
 
     <div class="footer-note" id="footerNote">
-        Tests are optional. Complete as many as you like — all results are linked to your registration.
+        Blink and Typing tests are mandatory. MRI scan is optional for additional analysis.
     </div>
 
     <script>
@@ -560,19 +574,30 @@
             badge.textContent = 'Welcome, ' + patientName;
         }
 
-        // Check which tests are done
+        // Guard: redirect to mandatory tests if not done
         const blinkDone = sessionStorage.getItem('blink_done') === '1';
-        const mriDone = sessionStorage.getItem('mri_done') === '1';
         const typingDone = sessionStorage.getItem('typing_done') === '1';
-        const anyDone = blinkDone || mriDone || typingDone;
+        const mriDone = sessionStorage.getItem('mri_done') === '1';
 
-        if (blinkDone) document.getElementById('card-blink').classList.add('done');
-        if (mriDone) document.getElementById('card-mri').classList.add('done');
-        if (typingDone) document.getElementById('card-typing').classList.add('done');
-
-        if (anyDone) {
-            document.getElementById('resultsCta').classList.add('visible');
+        if (!blinkDone) {
+            window.location.href = 'blink_detection.html';
+        } else if (!typingDone) {
+            window.location.href = 'typing_test.html';
         }
+
+        // Mark mandatory cards as done but still clickable for retaking
+        document.getElementById('card-blink').classList.add('done');
+        document.getElementById('card-typing').classList.add('done');
+
+        if (mriDone) {
+            document.getElementById('card-mri').classList.add('done');
+            document.getElementById('mriStep').classList.add('done');
+            document.getElementById('mriStep').querySelector('.step-dot').textContent = '✓';
+            document.getElementById('mriStepLine').classList.add('done');
+        }
+
+        // Always show results CTA since mandatory tests are done
+        document.getElementById('resultsCta').classList.add('visible');
     </script>
 </body>
 

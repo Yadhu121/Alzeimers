@@ -220,7 +220,11 @@
             <a href="index.html" class="logo">
                 <div class="logo-icon">P</div>Predictamind
             </a>
-            <a href="select_test.html" style="color:#222; font-weight:600; text-decoration:none;">← Back to Tests</a>
+            <div style="display:flex;gap:0.8rem;align-items:center;">
+                <a href="select_test.html" style="color:#222; font-weight:600; text-decoration:none;">← Dashboard</a>
+                <a href="#" onclick="sessionStorage.clear();window.location.href='login.html';"
+                    style="padding:0.5rem 1.2rem;background:#dc2626;color:white;border-radius:50px;text-decoration:none;font-weight:600;font-size:0.88rem;">Logout</a>
+            </div>
         </div>
     </nav>
 
@@ -266,13 +270,22 @@
             <p id="combinedSummary">Complete all three tests for a comprehensive AI-powered neurological analysis. Your
                 current results provide a preliminary insight into your cognitive health.</p>
             <div style="margin-top:2rem;">
-                <a href="select_test.html" class="btn btn-primary">Take More Tests</a>
-                <a href="#" class="btn btn-secondary" onclick="window.print()">Download Report</a>
+                <a href="upload.html" class="btn btn-primary">🧠 Take MRI Scan (Optional)</a>
+                <a href="select_test.html" class="btn btn-secondary">Dashboard</a>
             </div>
         </div>
     </div>
 
     <script>
+        // Guard: must have completed mandatory tests
+        const blinkDoneCheck = sessionStorage.getItem('blink_done') === '1';
+        const typingDoneCheck = sessionStorage.getItem('typing_done') === '1';
+        if (!blinkDoneCheck) {
+            window.location.href = 'blink_detection.html';
+        } else if (!typingDoneCheck) {
+            window.location.href = 'typing_test.html';
+        }
+
         const pName = sessionStorage.getItem('patient_name') || 'Patient';
         document.getElementById('patientGreeting').textContent = `Comprehensive results for ${pName}`;
 
@@ -290,6 +303,8 @@
             document.getElementById('mriStatus').className = 'status-badge done';
             const mriClass = sessionStorage.getItem('mri_class') || 'Analyzed';
             document.getElementById('mriData').innerHTML = `Classification: <strong>${mriClass}</strong><br><small style="color:#666">AI analysis of structural imaging completed.</small>`;
+        } else {
+            document.getElementById('mriData').innerHTML = 'Not taken yet. <a href="upload.html" style="color:#1d4ed8;font-weight:600;">Take MRI Scan (Optional)</a>';
         }
 
         // Typing
@@ -307,9 +322,9 @@
             (sessionStorage.getItem('typing_done') === '1' ? 1 : 0);
 
         if (total === 3) {
-            document.getElementById('combinedSummary').textContent = "Excellent! You've completed all assessments. Our AI models suggest your cognitive profile is stable, with all indicators pointing to a healthy profile. Keep staying active and mentally engaged.";
-        } else if (total > 0) {
-            document.getElementById('combinedSummary').textContent = "You've completed some tests. Each assessment adds more precision to your cognitive health profile. Consider completing the remaining tests for a full report.";
+            document.getElementById('combinedSummary').textContent = "Excellent! You've completed all three assessments including the optional MRI scan. Our AI models suggest your cognitive profile is stable, with all indicators pointing to a healthy profile.";
+        } else if (total === 2) {
+            document.getElementById('combinedSummary').textContent = "You've completed both mandatory assessments. Your cognitive health profile is ready. Consider taking the optional MRI scan for a more comprehensive analysis.";
         }
     </script>
 </body>

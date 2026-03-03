@@ -392,7 +392,8 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Password <span>*</span></label>
-                    <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password" required>
+                    <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password"
+                        required>
                 </div>
                 <button type="submit" class="submit-btn" id="loginBtn">Continue →</button>
                 <div class="msg-box" id="loginMsg"></div>
@@ -474,7 +475,33 @@
                 document.getElementById('welcomeName').textContent = `Welcome back, ${data.name}!`;
                 banner.style.display = 'block';
 
-                setTimeout(() => { window.location.href = 'select_test.html'; }, 1500);
+                // Fetch test history from server to set session flags
+                try {
+                    const histRes = await fetch(`/get_patient/${data.patient_id}`);
+                    if (histRes.ok) {
+                        const hist = await histRes.json();
+                        if (hist.blink_results && hist.blink_results.length > 0) {
+                            sessionStorage.setItem('blink_done', '1');
+                            sessionStorage.setItem('blink_count', hist.blink_results[0].blink_count);
+                        }
+                        if (hist.typing_results && hist.typing_results.length > 0) {
+                            sessionStorage.setItem('typing_done', '1');
+                            sessionStorage.setItem('typing_wpm', Math.round(hist.typing_results[0].wpm));
+                            sessionStorage.setItem('typing_acc', hist.typing_results[0].accuracy);
+                        }
+                        if (hist.scans && hist.scans.length > 0) {
+                            sessionStorage.setItem('mri_done', '1');
+                            sessionStorage.setItem('mri_class', hist.scans[0].predicted_class);
+                        }
+                    }
+                } catch (e) { /* proceed with redirect even if history fetch fails */ }
+
+                // Redirect based on test progress
+                let dest = 'blink_detection.html';
+                if (sessionStorage.getItem('blink_done') === '1') {
+                    dest = sessionStorage.getItem('typing_done') === '1' ? 'select_test.html' : 'typing_test.html';
+                }
+                setTimeout(() => { window.location.href = dest; }, 1500);
 
             } catch (err) {
                 msg.textContent = 'Server error. Make sure Flask is running.';
