@@ -485,9 +485,21 @@
                             sessionStorage.setItem('blink_count', hist.blink_results[0].blink_count);
                         }
                         if (hist.typing_results && hist.typing_results.length > 0) {
+                            const t = hist.typing_results[0];
                             sessionStorage.setItem('typing_done', '1');
-                            sessionStorage.setItem('typing_wpm', Math.round(hist.typing_results[0].wpm));
-                            sessionStorage.setItem('typing_acc', hist.typing_results[0].accuracy);
+                            sessionStorage.setItem('typing_wpm', Math.round(t.wpm));
+                            sessionStorage.setItem('typing_acc', t.accuracy);
+                            if (t.risk_score !== null && t.risk_score !== undefined) {
+                                let riskLevel = '🟢 Low Risk';
+                                if (t.risk_score >= 60) riskLevel = '🔴 High Risk';
+                                else if (t.risk_score >= 30) riskLevel = '🟡 Moderate Risk';
+                                sessionStorage.setItem('typing_risk_score', t.risk_score);
+                                sessionStorage.setItem('typing_risk_level', riskLevel);
+                                sessionStorage.setItem('typing_backspaces', t.backspace_count || 0);
+                                sessionStorage.setItem('typing_pauses', t.pause_count || 0);
+                                sessionStorage.setItem('typing_hesitations', t.hesitation_count || 0);
+                                sessionStorage.setItem('typing_avg_delay', t.avg_key_delay || 0);
+                            }
                         }
                         if (hist.scans && hist.scans.length > 0) {
                             sessionStorage.setItem('mri_done', '1');
