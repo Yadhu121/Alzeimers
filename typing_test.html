@@ -662,6 +662,9 @@
         <div class="input-wrapper">
             <textarea class="typing-area" id="typingArea" placeholder="Click 'Start Test' then begin typing here..."
                 disabled></textarea>
+            <div id="antiCheatMsg"
+                style="display:none;color:#dc2626;font-size:0.82rem;font-weight:600;margin-top:0.4rem;text-align:center;">
+                ⚠️ Copy/Paste is disabled during the test for accurate results.</div>
         </div>
 
         <!-- Buttons -->
@@ -786,6 +789,10 @@
         let backspaceCount = 0, errorCount = 0;
         let lastKeystrokeTime = null, pauseCount = 0, hesitationCount = 0;
         let totalKeyDelay = 0, keyCount = 0;
+        // Edge case tracking
+        let tabSwitchCount = 0, burstErrorCount = 0, consecutiveErrors = 0;
+        let idleTimer = null, tabHiddenAt = null;
+        const IDLE_TIMEOUT_MS = 180000; // 3 minutes
 
         // ── Elements ─────────────────────────────────────────────
         const passageDisplay = document.getElementById('passageDisplay');
@@ -831,16 +838,17 @@
                 if (typed[i] === passage[i]) correct++;
             }
             const accuracy = totalChars === 0 ? 100 : Math.round((correct / totalChars) * 100);
-            const minutes = (Date.now() - startTime) / 60000;
+            const minutes = startTime ? (Date.now() - startTime) / 60000 : 0;
             const words = typed.trim().split(/\s+/).filter(w => w).length;
-            const wpm = minutes > 0 ? Math.round(words / minutes) : 0;
-            const cpm = minutes > 0 ? Math.round(totalChars / minutes) : 0;
+            const wpm = minutes > 0.01 ? Math.round(words / minutes) : 0;
+            const cpm = minutes > 0.01 ? Math.round(totalChars / minutes) : 0;
             return { wpm, accuracy, cpm, errors: totalChars - correct };
         }
 
         // ── Keystroke tracking (keydown) ──────────────────────────
         function onKeyDown(e) {
             if (!started || finished) return;
+            resetIdleTimer();
             const now = Date.now();
             if (e.key === 'Backspace') backspaceCount++;
             if (lastKeystrokeTime !== null) {
@@ -852,6 +860,59 @@
             }
             lastKeystrokeTime = now;
         }
+
+        // ── Anti-cheat: block paste/copy/cut/right-click ─────────
+        ['paste', 'cut', 'copy'].forEach(evt => {
+            typingArea.addEventListener(evt, e => {
+                if (started && !finished) {
+                    e.preventDefault();
+                    const msg = document.getElementById('antiCheatMsg');
+                    msg.style.display = 'block';
+                    setTimeout(() => msg.style.display = 'none', 3000);
+                }
+            });
+        });
+        typingArea.addEventListener('contextmenu', e => {
+            if (started && !finished) e.preventDefault();
+        });
+
+        // ── Idle timeout (3 min) ─────────────────────────────────
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+            if (started && !finished) {
+                idleTimer = setTimeout(() => {
+                    if (started && !finished) {
+                        const typed = typingArea.value;
+                        if (typed.length < 10) {
+                            document.getElementById('savedMsg').textContent = '⚠️ Test auto-ended due to inactivity. Too few characters typed — results not saved.';
+                            finished = true; stopTimer();
+                            typingArea.disabled = true;
+                            resultPanel.classList.add('visible');
+                            document.getElementById('finalWpm').textContent = '0';
+                            document.getElementById('finalAcc').textContent = '0%';
+                            document.getElementById('finalTime').textContent = Math.floor(IDLE_TIMEOUT_MS / 1000) + 's';
+                        } else {
+                            finishTest(typed);
+                        }
+                    }
+                }, IDLE_TIMEOUT_MS);
+            }
+        }
+
+        // ── Tab-away detection ───────────────────────────────────
+        document.addEventListener('visibilitychange', () => {
+            if (!started || finished) return;
+            if (document.hidden) {
+                tabHiddenAt = Date.now();
+                tabSwitchCount++;
+            } else {
+                // Don't count time away as key delay
+                if (tabHiddenAt && lastKeystrokeTime !== null) {
+                    lastKeystrokeTime = Date.now();
+                }
+                tabHiddenAt = null;
+            }
+        });
 
         // ── Update cognitive metrics panel ────────────────────────
         function updateCognitiveMetrics(typed) {
@@ -875,12 +936,28 @@
         // ── Input handler ─────────────────────────────────────────
         typingArea.addEventListener('input', () => {
             if (!started || finished) return;
-            const typed = typingArea.value;
+            let typed = typingArea.value;
+            // Cap at passage length
+            if (typed.length > passage.length) {
+                typed = typed.substring(0, passage.length);
+                typingArea.value = typed;
+            }
             renderPassage(typed);
 
             const { wpm, accuracy } = calcStats(typed);
             wpmDisplay.textContent = wpm;
             accDisplay.textContent = accuracy + '%';
+
+            // Burst error detection
+            if (typed.length > 0) {
+                const lastIdx = typed.length - 1;
+                if (typed[lastIdx] !== passage[lastIdx]) {
+                    consecutiveErrors++;
+                    if (consecutiveErrors === 3) burstErrorCount++;
+                } else {
+                    consecutiveErrors = 0;
+                }
+            }
 
             updateCognitiveMetrics(typed);
             updateProgress(typed);
@@ -927,8 +1004,10 @@
 
         // ── Finish ────────────────────────────────────────────────
         async function finishTest(typed) {
+            if (finished) return; // Double-finish guard
             finished = true;
             stopTimer();
+            clearTimeout(idleTimer);
             typingArea.disabled = true;
             typingArea.removeEventListener('keydown', onKeyDown);
 
@@ -1007,6 +1086,7 @@
             if (started) return;
             started = true;
             typingArea.disabled = false;
+            typingArea.setAttribute('maxlength', passage.length);
             typingArea.focus();
             typingArea.placeholder = 'Start typing now…';
             startBtn.disabled = true;
@@ -1014,19 +1094,24 @@
             document.getElementById('risk-card').classList.remove('show');
             typingArea.addEventListener('keydown', onKeyDown);
             startTimer();
+            resetIdleTimer();
         });
 
         // ── Reset button ──────────────────────────────────────────
         resetBtn.addEventListener('click', () => {
             started = false; finished = false;
             stopTimer(); elapsed = 0;
+            clearTimeout(idleTimer);
             // Reset cognitive state
             backspaceCount = 0; errorCount = 0;
             lastKeystrokeTime = null; pauseCount = 0; hesitationCount = 0;
             totalKeyDelay = 0; keyCount = 0;
+            tabSwitchCount = 0; burstErrorCount = 0; consecutiveErrors = 0;
+            tabHiddenAt = null;
             // Reset UI
             typingArea.value = '';
             typingArea.disabled = true;
+            typingArea.removeAttribute('maxlength');
             typingArea.placeholder = "Click 'Start Test' then begin typing here...";
             typingArea.removeEventListener('keydown', onKeyDown);
             startBtn.disabled = false;
@@ -1038,6 +1123,7 @@
             resultPanel.classList.remove('visible');
             document.getElementById('risk-card').classList.remove('show');
             document.getElementById('test-results-summary').classList.remove('visible');
+            document.getElementById('antiCheatMsg').style.display = 'none';
             // Reset cognitive metrics display
             document.getElementById('m-wpm').textContent = '0';
             document.getElementById('m-cpm').textContent = '0';
