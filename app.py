@@ -62,6 +62,11 @@ class TypingResult(db.Model):
     wpm = db.Column(db.Float)
     accuracy = db.Column(db.Float)
     test_text = db.Column(db.Text)
+    risk_score = db.Column(db.Integer)
+    backspace_count = db.Column(db.Integer)
+    pause_count = db.Column(db.Integer)
+    hesitation_count = db.Column(db.Integer)
+    avg_key_delay = db.Column(db.Integer)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -274,6 +279,11 @@ def get_patients():
             'id': t.id,
             'wpm': t.wpm,
             'accuracy': t.accuracy,
+            'risk_score': t.risk_score,
+            'backspace_count': t.backspace_count,
+            'pause_count': t.pause_count,
+            'hesitation_count': t.hesitation_count,
+            'avg_key_delay': t.avg_key_delay,
             'created_at': t.created_at.strftime('%Y-%m-%d %H:%M') if t.created_at else ''
         } for t in p.typing_results]
 
@@ -318,6 +328,11 @@ def get_patient(patient_id):
         'id': t.id,
         'wpm': t.wpm,
         'accuracy': t.accuracy,
+        'risk_score': t.risk_score,
+        'backspace_count': t.backspace_count,
+        'pause_count': t.pause_count,
+        'hesitation_count': t.hesitation_count,
+        'avg_key_delay': t.avg_key_delay,
         'created_at': t.created_at.strftime('%d %b %Y, %H:%M') if t.created_at else ''
     } for t in p.typing_results]
 
@@ -495,7 +510,12 @@ def save_typing_result():
         patient_id=patient_id,
         wpm=data.get('wpm', 0),
         accuracy=data.get('accuracy', 0),
-        test_text=data.get('test_text', '')
+        test_text=data.get('test_text', ''),
+        risk_score=data.get('risk_score'),
+        backspace_count=data.get('backspace_count'),
+        pause_count=data.get('pause_count'),
+        hesitation_count=data.get('hesitation_count'),
+        avg_key_delay=data.get('avg_key_delay')
     )
     db.session.add(result)
     db.session.commit()
@@ -508,11 +528,19 @@ def save_typing_result():
 
 if __name__ == '__main__':
     with app.app_context():
-        try:
-            db.session.execute(db.text('ALTER TABLE patient ADD COLUMN password VARCHAR(255)'))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
+        # Migrations for existing databases
+        for col in ['password']:
+            try:
+                db.session.execute(db.text(f'ALTER TABLE patient ADD COLUMN {col} VARCHAR(255)'))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+        for col in ['risk_score', 'backspace_count', 'pause_count', 'hesitation_count', 'avg_key_delay']:
+            try:
+                db.session.execute(db.text(f'ALTER TABLE typing_result ADD COLUMN {col} INTEGER'))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
         db.create_all()
 
     app.run(debug=True, use_reloader=False, port=5000)

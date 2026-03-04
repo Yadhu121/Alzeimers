@@ -621,7 +621,20 @@
         }
         function renderTyping(results) {
             if (!results || !results.length) return '<p>No data.</p>';
-            return results.map(r => `<div>• <strong>${r.wpm} WPM</strong> / ${r.accuracy}% acc</div>`).join('');
+            return results.map(r => {
+                let riskBadge = '';
+                if (r.risk_score !== null && r.risk_score !== undefined) {
+                    let riskColor = '#15803d', riskLabel = 'Low';
+                    if (r.risk_score >= 60) { riskColor = '#dc2626'; riskLabel = 'High'; }
+                    else if (r.risk_score >= 30) { riskColor = '#ca8a04'; riskLabel = 'Moderate'; }
+                    riskBadge = ` — <span style="color:${riskColor};font-weight:700">Risk: ${r.risk_score}/100 (${riskLabel})</span>`;
+                }
+                let details = `<div>• <strong>${r.wpm} WPM</strong> / ${r.accuracy}% acc${riskBadge}</div>`;
+                if (r.backspace_count !== null && r.backspace_count !== undefined) {
+                    details += `<div style="font-size:0.82rem;color:#64748b;margin-left:1rem;">Backspaces: ${r.backspace_count} | Pauses: ${r.pause_count || 0} | Hesitations: ${r.hesitation_count || 0} | Avg Delay: ${r.avg_key_delay || 0}ms</div>`;
+                }
+                return details;
+            }).join('');
         }
 
         function toggleRow(id) {
@@ -652,9 +665,11 @@
         }
 
         function exportCSV() {
-            let csv = "ID,Name,Email,Age,Gender,Created_At\n";
+            let csv = "ID,Name,Email,Age,Gender,Risk_Score,Created_At\n";
             allPatients.forEach(p => {
-                csv += `${p.id},"${p.name}","${p.email}",${p.age},"${p.gender}","${p.created_at}"\n`;
+                const latestTyping = (p.typing_results && p.typing_results.length) ? p.typing_results[p.typing_results.length - 1] : null;
+                const riskScore = latestTyping && latestTyping.risk_score !== null ? latestTyping.risk_score : '';
+                csv += `${p.id},"${p.name}","${p.email}",${p.age},"${p.gender}","${riskScore}","${p.created_at}"\n`;
             });
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
