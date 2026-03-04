@@ -314,19 +314,22 @@
             const wpm = sessionStorage.getItem('typing_wpm');
             const acc = sessionStorage.getItem('typing_acc');
             const riskScore = sessionStorage.getItem('typing_risk_score');
-            const riskLevel = sessionStorage.getItem('typing_risk_level') || '';
-            const backspaces = sessionStorage.getItem('typing_backspaces') || '0';
-            const pauses = sessionStorage.getItem('typing_pauses') || '0';
-            const hesitations = sessionStorage.getItem('typing_hesitations') || '0';
-            const avgDelay = sessionStorage.getItem('typing_avg_delay') || '0';
 
-            let riskColor = '#15803d';
-            if (parseInt(riskScore) >= 60) riskColor = '#dc2626';
-            else if (parseInt(riskScore) >= 30) riskColor = '#ca8a04';
+            let typeHtml = `Speed: <strong>${wpm} WPM</strong><br>Accuracy: <strong>${acc}%</strong>`;
 
-            document.getElementById('typeData').innerHTML = `
-                Speed: <strong>${wpm} WPM</strong><br>
-                Accuracy: <strong>${acc}%</strong><br>
+            // Only show risk details if risk data exists
+            if (riskScore && riskScore !== 'null' && riskScore !== 'undefined') {
+                const riskLevel = sessionStorage.getItem('typing_risk_level') || '';
+                const backspaces = sessionStorage.getItem('typing_backspaces') || '0';
+                const pauses = sessionStorage.getItem('typing_pauses') || '0';
+                const hesitations = sessionStorage.getItem('typing_hesitations') || '0';
+                const avgDelay = sessionStorage.getItem('typing_avg_delay') || '0';
+
+                let riskColor = '#15803d';
+                if (parseInt(riskScore) >= 60) riskColor = '#dc2626';
+                else if (parseInt(riskScore) >= 30) riskColor = '#ca8a04';
+
+                typeHtml += `<br>
                 <div style="margin-top:0.8rem;padding:0.8rem;background:rgba(0,0,0,0.03);border-radius:10px;">
                     <div style="font-size:0.82rem;font-weight:700;color:${riskColor};margin-bottom:0.4rem;">
                         Risk Score: ${riskScore}/100 ${riskLevel}
@@ -336,6 +339,9 @@
                         Hesitations: ${hesitations} · Avg Delay: ${avgDelay}ms
                     </div>
                 </div>`;
+            }
+
+            document.getElementById('typeData').innerHTML = typeHtml;
         }
 
         // Final text
