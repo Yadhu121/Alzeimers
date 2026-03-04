@@ -329,6 +329,36 @@
             font-weight: 600;
         }
 
+        /* Typing risk badges */
+        .typing-risk {
+            display: inline-block;
+            padding: 0.25rem 0.9rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .typing-risk.risk-low {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .typing-risk.risk-moderate {
+            background: #fef9c3;
+            color: #a16207;
+        }
+
+        .typing-risk.risk-high {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .typing-details {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin-top: 0.3rem;
+        }
+
         /* Empty state per section */
         .empty-section {
             padding: 2rem 1.8rem;
@@ -593,7 +623,23 @@
             document.getElementById('typingCount').textContent = results.length;
             document.getElementById('typingCountBadge').textContent = results.length;
             if (!results.length) return;
-            el.innerHTML = results.map(r => `
+            el.innerHTML = results.map(r => {
+                // Risk badge
+                let riskBadge = '';
+                if (r.risk_score !== null && r.risk_score !== undefined) {
+                    let riskCls = 'risk-low', riskLabel = '🟢 Low Risk';
+                    if (r.risk_score >= 60) { riskCls = 'risk-high'; riskLabel = '🔴 High Risk'; }
+                    else if (r.risk_score >= 30) { riskCls = 'risk-moderate'; riskLabel = '🟡 Moderate Risk'; }
+                    riskBadge = `<span class="typing-risk ${riskCls}">${r.risk_score}/100 — ${riskLabel}</span>`;
+                }
+
+                // Cognitive details
+                let detailsLine = '';
+                if (r.backspace_count !== null && r.backspace_count !== undefined) {
+                    detailsLine = `<div class="typing-details">Backspaces: ${r.backspace_count} · Pauses: ${r.pause_count || 0} · Hesitations: ${r.hesitation_count || 0} · Avg Delay: ${r.avg_key_delay || 0}ms</div>`;
+                }
+
+                return `
                 <div class="entry-row typing-entry">
                     <div class="typing-stat">
                         <div class="big">${Math.round(r.wpm)}</div>
@@ -603,10 +649,13 @@
                         <div class="big" style="color:#15803d;">${r.accuracy}%</div>
                         <div class="lbl">Accuracy</div>
                     </div>
-                    <div></div>
+                    <div>
+                        ${riskBadge}
+                        ${detailsLine}
+                    </div>
                     <span class="date-chip">${r.created_at}</span>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
         }
     </script>
 </body>

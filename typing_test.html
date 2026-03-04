@@ -394,9 +394,208 @@
             display: block;
         }
 
+        /* Progress bar */
+        .progress-wrapper {
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-wrapper progress {
+            width: 100%;
+            height: 10px;
+            border-radius: 8px;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .progress-wrapper progress::-webkit-progress-bar {
+            background: #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .progress-wrapper progress::-webkit-progress-value {
+            background: linear-gradient(90deg, #4285F4, #34A853);
+            border-radius: 8px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-wrapper progress::-moz-progress-bar {
+            background: linear-gradient(90deg, #4285F4, #34A853);
+            border-radius: 8px;
+        }
+
+        /* Expanded metrics grid */
+        .metrics-section {
+            margin-top: 2rem;
+        }
+
+        .metrics-section .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-box {
+            background: white;
+            border-radius: 14px;
+            padding: 1rem 0.8rem;
+            text-align: center;
+            border: 1.5px solid #f1f5f9;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .metric-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .metric-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .metric-label {
+            font-size: 0.72rem;
+            color: #888;
+            font-weight: 600;
+            margin-top: 4px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        /* Test Results Summary */
+        .test-results-summary {
+            display: none;
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border: 1.5px solid #bae6fd;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .test-results-summary.visible {
+            display: block;
+        }
+
+        .test-results-summary h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: #0c4a6e;
+            margin-bottom: 0.8rem;
+        }
+
+        .results-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem 1.5rem;
+        }
+
+        .results-detail-grid .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid rgba(14, 116, 144, 0.1);
+            font-size: 0.9rem;
+        }
+
+        .results-detail-grid .detail-item .label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .results-detail-grid .detail-item .value {
+            color: #0c4a6e;
+            font-weight: 700;
+        }
+
+        /* Risk card */
+        .risk-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 8px 40px rgba(31, 38, 135, 0.1);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 780px;
+            margin-top: 1.5rem;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            pointer-events: none;
+        }
+
+        .risk-card.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .risk-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 1rem;
+        }
+
+        .risk-score {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .risk-low {
+            color: #15803d;
+        }
+
+        .risk-medium {
+            color: #ca8a04;
+        }
+
+        .risk-high {
+            color: #dc2626;
+        }
+
+        .risk-label-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .risk-note {
+            font-size: 0.82rem;
+            color: #888;
+            line-height: 1.5;
+            max-width: 500px;
+            margin: 0 auto;
+            font-style: italic;
+        }
+
         @media (max-width:600px) {
             .stats-row {
                 grid-template-columns: 1fr;
+            }
+
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
 
             .btn-row {
@@ -448,6 +647,11 @@
             </div>
         </div>
 
+        <!-- Progress Bar -->
+        <div class="progress-wrapper">
+            <progress id="progressBar" value="0" max="100"></progress>
+        </div>
+
         <!-- Passage -->
         <div class="passage-wrapper">
             <div class="passage-label">📄 Passage to Type</div>
@@ -493,6 +697,77 @@
         </div>
     </div>
 
+    <!-- Live Cognitive Metrics -->
+    <div class="card metrics-section">
+        <div class="section-title">📊 Live Cognitive Metrics</div>
+        <div class="metrics-grid">
+            <div class="metric-box">
+                <div class="metric-value" id="m-wpm">0</div>
+                <div class="metric-label">WPM</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value" id="m-cpm">0</div>
+                <div class="metric-label">CPM</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value" id="m-backspace">0</div>
+                <div class="metric-label">Backspaces</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value" id="m-errors">0</div>
+                <div class="metric-label">Errors</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value" id="m-accuracy">100%</div>
+                <div class="metric-label">Accuracy</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value" id="m-pauses">0</div>
+                <div class="metric-label">Long Pauses</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value" id="m-avg-delay">0ms</div>
+                <div class="metric-label">Avg Key Delay</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value" id="m-hesitations">0</div>
+                <div class="metric-label">Hesitations</div>
+            </div>
+        </div>
+        <div class="test-results-summary" id="test-results-summary">
+            <h4>📋 Test Results Summary</h4>
+            <div class="results-detail-grid">
+                <div class="detail-item"><span class="label">WPM</span><span class="value" id="res-wpm">—</span></div>
+                <div class="detail-item"><span class="label">CPM</span><span class="value" id="res-cpm">—</span></div>
+                <div class="detail-item"><span class="label">Accuracy</span><span class="value"
+                        id="res-accuracy">—</span></div>
+                <div class="detail-item"><span class="label">Errors</span><span class="value" id="res-errors">—</span>
+                </div>
+                <div class="detail-item"><span class="label">Backspaces</span><span class="value"
+                        id="res-backspaces">—</span></div>
+                <div class="detail-item"><span class="label">Long Pauses</span><span class="value"
+                        id="res-pauses">—</span></div>
+                <div class="detail-item"><span class="label">Hesitations</span><span class="value"
+                        id="res-hesitations">—</span></div>
+                <div class="detail-item"><span class="label">Avg Key Delay</span><span class="value"
+                        id="res-avg-delay">—</span></div>
+                <div class="detail-item"><span class="label">Risk Score</span><span class="value"
+                        id="res-risk-score">—</span></div>
+                <div class="detail-item"><span class="label">Risk Level</span><span class="value"
+                        id="res-risk-level">—</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Card -->
+    <div class="risk-card" id="risk-card">
+        <div class="risk-title">🧠 Cognitive Risk Indicator</div>
+        <div class="risk-score" id="risk-score-val">--</div>
+        <div class="risk-label-text" id="risk-label-text">--</div>
+        <div class="risk-note">This score is based on typing behavior patterns only. It is NOT a medical diagnosis.
+            Please consult a medical professional for clinical assessment.</div>
+    </div>
+
     <script>
         // ── Passage pool ─────────────────────────────────────────
         const passages = [
@@ -507,6 +782,10 @@
         // ── State ────────────────────────────────────────────────
         let started = false, finished = false;
         let startTime = null, elapsed = 0, timerInterval = null;
+        // Cognitive tracking state
+        let backspaceCount = 0, errorCount = 0;
+        let lastKeystrokeTime = null, pauseCount = 0, hesitationCount = 0;
+        let totalKeyDelay = 0, keyCount = 0;
 
         // ── Elements ─────────────────────────────────────────────
         const passageDisplay = document.getElementById('passageDisplay');
@@ -517,6 +796,7 @@
         const timerDisplay = document.getElementById('timerDisplay');
         const wpmDisplay = document.getElementById('wpmDisplay');
         const accDisplay = document.getElementById('accDisplay');
+        const progressBar = document.getElementById('progressBar');
 
         // ── Render passage characters ─────────────────────────────
         function renderPassage(typed) {
@@ -554,7 +834,42 @@
             const minutes = (Date.now() - startTime) / 60000;
             const words = typed.trim().split(/\s+/).filter(w => w).length;
             const wpm = minutes > 0 ? Math.round(words / minutes) : 0;
-            return { wpm, accuracy };
+            const cpm = minutes > 0 ? Math.round(totalChars / minutes) : 0;
+            return { wpm, accuracy, cpm, errors: totalChars - correct };
+        }
+
+        // ── Keystroke tracking (keydown) ──────────────────────────
+        function onKeyDown(e) {
+            if (!started || finished) return;
+            const now = Date.now();
+            if (e.key === 'Backspace') backspaceCount++;
+            if (lastKeystrokeTime !== null) {
+                const delay = now - lastKeystrokeTime;
+                totalKeyDelay += delay;
+                keyCount++;
+                if (delay > 2000) pauseCount++;
+                else if (delay > 800) hesitationCount++;
+            }
+            lastKeystrokeTime = now;
+        }
+
+        // ── Update cognitive metrics panel ────────────────────────
+        function updateCognitiveMetrics(typed) {
+            const { wpm, accuracy, cpm, errors } = calcStats(typed);
+            const avgDelay = keyCount > 0 ? Math.round(totalKeyDelay / keyCount) : 0;
+            document.getElementById('m-wpm').textContent = wpm;
+            document.getElementById('m-cpm').textContent = cpm;
+            document.getElementById('m-backspace').textContent = backspaceCount;
+            document.getElementById('m-errors').textContent = errors;
+            document.getElementById('m-accuracy').textContent = accuracy + '%';
+            document.getElementById('m-pauses').textContent = pauseCount;
+            document.getElementById('m-avg-delay').textContent = avgDelay + 'ms';
+            document.getElementById('m-hesitations').textContent = hesitationCount;
+        }
+
+        // ── Update progress bar ───────────────────────────────────
+        function updateProgress(typed) {
+            progressBar.value = Math.min(100, Math.round((typed.length / passage.length) * 100));
         }
 
         // ── Input handler ─────────────────────────────────────────
@@ -567,19 +882,57 @@
             wpmDisplay.textContent = wpm;
             accDisplay.textContent = accuracy + '%';
 
+            updateCognitiveMetrics(typed);
+            updateProgress(typed);
+
             // Finished?
             if (typed.length >= passage.length) {
                 finishTest(typed);
             }
         });
 
+        // ── Cognitive Risk Score ──────────────────────────────────
+        function computeRisk({ wpm, accuracy, avgDelay, backspaceRate, pauseCount, hesitations }) {
+            let score = 0;
+            if (wpm < 20) score += 30; else if (wpm < 35) score += 20; else if (wpm < 50) score += 10;
+            if (accuracy < 70) score += 25; else if (accuracy < 85) score += 15; else if (accuracy < 95) score += 5;
+            if (avgDelay > 800) score += 20; else if (avgDelay > 500) score += 12; else if (avgDelay > 300) score += 5;
+            if (backspaceRate > 0.3) score += 15; else if (backspaceRate > 0.15) score += 8;
+            score += Math.min(pauseCount * 5, 20);
+            score += Math.min(hesitations * 2, 10);
+            score = Math.min(score, 100);
+
+            const card = document.getElementById('risk-card');
+            const val = document.getElementById('risk-score-val');
+            const lbl = document.getElementById('risk-label-text');
+            val.textContent = score + '/100';
+            card.classList.add('show');
+
+            if (score < 30) {
+                val.className = 'risk-score risk-low';
+                lbl.textContent = '🟢 Low Risk — Typing patterns appear normal';
+                lbl.style.color = '#15803d';
+            } else if (score < 60) {
+                val.className = 'risk-score risk-medium';
+                lbl.textContent = '🟡 Moderate Risk — Some unusual patterns detected';
+                lbl.style.color = '#ca8a04';
+            } else {
+                val.className = 'risk-score risk-high';
+                lbl.textContent = '🔴 High Risk — Significant irregularities observed';
+                lbl.style.color = '#dc2626';
+            }
+
+            return score;
+        }
+
         // ── Finish ────────────────────────────────────────────────
         async function finishTest(typed) {
             finished = true;
             stopTimer();
             typingArea.disabled = true;
+            typingArea.removeEventListener('keydown', onKeyDown);
 
-            const { wpm, accuracy } = calcStats(typed);
+            const { wpm, accuracy, cpm, errors } = calcStats(typed);
             elapsed = Math.floor((Date.now() - startTime) / 1000);
 
             document.getElementById('finalWpm').textContent = wpm;
@@ -587,10 +940,40 @@
             document.getElementById('finalTime').textContent = elapsed + 's';
             resultPanel.classList.add('visible');
 
+            // Compute and show risk score
+            const avgDelay = keyCount > 0 ? totalKeyDelay / keyCount : 0;
+            const backspaceRate = keyCount > 0 ? backspaceCount / keyCount : 0;
+            const riskScore = computeRisk({ wpm, accuracy, avgDelay, backspaceRate, pauseCount, hesitations: hesitationCount });
+
+            // Determine risk level text
+            let riskLevel = '';
+            if (riskScore < 30) riskLevel = '🟢 Low Risk';
+            else if (riskScore < 60) riskLevel = '🟡 Moderate Risk';
+            else riskLevel = '🔴 High Risk';
+
+            // Populate results summary panel
+            document.getElementById('res-wpm').textContent = wpm;
+            document.getElementById('res-cpm').textContent = cpm;
+            document.getElementById('res-accuracy').textContent = accuracy + '%';
+            document.getElementById('res-errors').textContent = errors;
+            document.getElementById('res-backspaces').textContent = backspaceCount;
+            document.getElementById('res-pauses').textContent = pauseCount;
+            document.getElementById('res-hesitations').textContent = hesitationCount;
+            document.getElementById('res-avg-delay').textContent = Math.round(avgDelay) + 'ms';
+            document.getElementById('res-risk-score').textContent = riskScore + '/100';
+            document.getElementById('res-risk-level').textContent = riskLevel;
+            document.getElementById('test-results-summary').classList.add('visible');
+
             // Mark typing test as done in session
             sessionStorage.setItem('typing_done', '1');
             sessionStorage.setItem('typing_wpm', wpm);
             sessionStorage.setItem('typing_acc', accuracy);
+            sessionStorage.setItem('typing_risk_score', riskScore);
+            sessionStorage.setItem('typing_risk_level', riskLevel);
+            sessionStorage.setItem('typing_backspaces', backspaceCount);
+            sessionStorage.setItem('typing_pauses', pauseCount);
+            sessionStorage.setItem('typing_hesitations', hesitationCount);
+            sessionStorage.setItem('typing_avg_delay', Math.round(avgDelay));
 
             // Save to server
             const patientId = sessionStorage.getItem('patient_id');
@@ -602,7 +985,12 @@
                         body: JSON.stringify({
                             patient_id: parseInt(patientId),
                             wpm, accuracy,
-                            test_text: passage
+                            test_text: passage,
+                            risk_score: riskScore,
+                            backspace_count: backspaceCount,
+                            pause_count: pauseCount,
+                            hesitation_count: hesitationCount,
+                            avg_key_delay: Math.round(avgDelay)
                         })
                     });
                     document.getElementById('savedMsg').textContent = 'Results saved to your profile.';
@@ -623,6 +1011,8 @@
             typingArea.placeholder = 'Start typing now…';
             startBtn.disabled = true;
             startBtn.textContent = '⏱ In Progress…';
+            document.getElementById('risk-card').classList.remove('show');
+            typingArea.addEventListener('keydown', onKeyDown);
             startTimer();
         });
 
@@ -630,15 +1020,33 @@
         resetBtn.addEventListener('click', () => {
             started = false; finished = false;
             stopTimer(); elapsed = 0;
+            // Reset cognitive state
+            backspaceCount = 0; errorCount = 0;
+            lastKeystrokeTime = null; pauseCount = 0; hesitationCount = 0;
+            totalKeyDelay = 0; keyCount = 0;
+            // Reset UI
             typingArea.value = '';
             typingArea.disabled = true;
             typingArea.placeholder = "Click 'Start Test' then begin typing here...";
+            typingArea.removeEventListener('keydown', onKeyDown);
             startBtn.disabled = false;
             startBtn.textContent = '▶ Start Test';
             timerDisplay.textContent = '0s';
             wpmDisplay.textContent = '0';
             accDisplay.textContent = '100%';
+            progressBar.value = 0;
             resultPanel.classList.remove('visible');
+            document.getElementById('risk-card').classList.remove('show');
+            document.getElementById('test-results-summary').classList.remove('visible');
+            // Reset cognitive metrics display
+            document.getElementById('m-wpm').textContent = '0';
+            document.getElementById('m-cpm').textContent = '0';
+            document.getElementById('m-backspace').textContent = '0';
+            document.getElementById('m-errors').textContent = '0';
+            document.getElementById('m-accuracy').textContent = '100%';
+            document.getElementById('m-pauses').textContent = '0';
+            document.getElementById('m-avg-delay').textContent = '0ms';
+            document.getElementById('m-hesitations').textContent = '0';
             renderPassage('');
         });
 
