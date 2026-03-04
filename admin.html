@@ -629,7 +629,7 @@
                     else if (r.risk_score >= 30) { riskColor = '#ca8a04'; riskLabel = 'Moderate'; }
                     riskBadge = ` — <span style="color:${riskColor};font-weight:700">Risk: ${r.risk_score}/100 (${riskLabel})</span>`;
                 }
-                let details = `<div>• <strong>${r.wpm} WPM</strong> / ${r.accuracy}% acc${riskBadge}</div>`;
+                let details = `<div>• <strong>${r.wpm} WPM</strong> / ${r.accuracy}% acc${riskBadge} <span style="font-size:0.78rem;color:#94a3b8;margin-left:0.5rem;">${r.created_at || ''}</span></div>`;
                 if (r.backspace_count !== null && r.backspace_count !== undefined) {
                     details += `<div style="font-size:0.82rem;color:#64748b;margin-left:1rem;">Backspaces: ${r.backspace_count} | Pauses: ${r.pause_count || 0} | Hesitations: ${r.hesitation_count || 0} | Avg Delay: ${r.avg_key_delay || 0}ms</div>`;
                 }
