@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Speed Test – Predictamind</title>
+    <meta name="description" content="Typing speed assessment for Alzheimer's early detection.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script src="js/cursor-trail.js" defer></script>
+    <script src="js/floating-particles.js" defer></script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #222222;
+            --glass-bg: rgba(255, 255, 255, 0.82);
+            --glass-border: rgba(255, 255, 255, 0.6);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8f9ff 0%, #eef1f8 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 1rem 3rem;
+            cursor: none;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1.2rem 5%;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #222;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #222, #444);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .nav-back {
+            padding: 0.6rem 1.5rem;
+            background: #222;
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .nav-back:hover {
+            background: #444;
+            transform: translateY(-2px);
+        }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            margin-top: 6.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-label {
+            display: inline-block;
+            padding: 0.4rem 1.2rem;
+            background: rgba(52, 168, 83, 0.1);
+            color: #34A853;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+        }
+
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* Main card */
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 8px 40px rgba(31, 38, 135, 0.1);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 780px;
+        }
+
+        /* Stats row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem;
+            text-align: center;
+            border: 1.5px solid #f1f5f9;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .stat-label {
+            font-size: 0.78rem;
+            color: #666;
+            font-weight: 600;
+            margin-top: 2px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .stat-value.timing {
+            color: #4285F4;
+        }
+
+        .stat-value.wpm {
+            color: #34A853;
+        }
+
+        .stat-value.acc {
+            color: #EA4335;
+        }
+
+        /* Passage display */
+        .passage-wrapper {
+            margin-bottom: 1.5rem;
+        }
+
+        .passage-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 0.6rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .passage-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            line-height: 1.9;
+            padding: 1.5rem;
+            background: #f8faff;
+            border-radius: 14px;
+            border: 1.5px solid #e2e8f0;
+            user-select: none;
+            letter-spacing: 0.02em;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+            overflow: hidden;
+        }
+
+        .ch {
+            display: inline;
+            transition: color 0.1s, background 0.1s;
+        }
+
+        .ch.correct {
+            color: #34A853;
+        }
+
+        .ch.wrong {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 2px;
+        }
+
+        .ch.current {
+            background: #4285F4;
+            color: white;
+            border-radius: 3px;
+        }
+
+        /* Textarea */
+        .input-wrapper {
+            margin-bottom: 1.5rem;
+        }
+
+        .typing-area {
+            width: 100%;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            line-height: 1.7;
+            padding: 1.2rem 1.4rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            background: white;
+            resize: none;
+            height: 110px;
+            transition: border-color 0.25s, box-shadow 0.25s;
+            color: #222;
+        }
+
+        .typing-area:focus {
+            outline: none;
+            border-color: #4285F4;
+            box-shadow: 0 0 0 4px rgba(66, 133, 244, 0.1);
+        }
+
+        .typing-area:disabled {
+            background: #f1f5f9;
+            cursor: not-allowed;
+        }
+
+        /* Buttons */
+        .btn-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #222, #444);
+            color: white;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+        }
+
+        .btn-reset {
+            background: #f1f5f9;
+            color: #444;
+            border: 1.5px solid #e2e8f0;
+        }
+
+        .btn-reset:hover {
+            background: #e2e8f0;
+        }
+
+        /* Result panel */
+        .result-panel {
+            display: none;
+            margin-top: 1.5rem;
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 1.5px solid #bbf7d0;
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            text-align: center;
+        }
+
+        .result-panel.visible {
+            display: block;
+        }
+
+        .result-panel h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            color: #15803d;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-panel p {
+            color: #166534;
+            font-size: 0.95rem;
+        }
+
+        .result-panel .big-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1rem 0;
+        }
+
+        .big-stat {
+            text-align: center;
+        }
+
+        .big-stat .val {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #15803d;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .big-stat .lbl {
+            font-size: 0.8rem;
+            color: #4ade80;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .btn-next {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.8rem 2rem;
+            background: #15803d;
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .btn-next:hover {
+            background: #166534;
+            transform: translateY(-2px);
+        }
+
+        /* Guard warning */
+        .guard-warning {
+            display: none;
+            background: rgba(254, 242, 242, 0.9);
+            border: 1px solid #fca5a5;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #dc2626;
+            font-size: 0.9rem;
+        }
+
+        .guard-warning.visible {
+            display: block;
+        }
+
+        /* Progress bar */
+        .progress-wrapper {
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-wrapper progress {
+            width: 100%;
+            height: 10px;
+            border-radius: 8px;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .progress-wrapper progress::-webkit-progress-bar {
+            background: #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .progress-wrapper progress::-webkit-progress-value {
+            background: linear-gradient(90deg, #4285F4, #34A853);
+            border-radius: 8px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-wrapper progress::-moz-progress-bar {
+            background: linear-gradient(90deg, #4285F4, #34A853);
+            border-radius: 8px;
+        }
+
+        /* Expanded metrics grid */
+        .metrics-section {
+            margin-top: 2rem;
+        }
+
+        .metrics-section .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-box {
+            background: white;
+            border-radius: 14px;
+            padding: 1rem 0.8rem;
+            text-align: center;
+            border: 1.5px solid #f1f5f9;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .metric-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .metric-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .metric-label {
+            font-size: 0.72rem;
+            color: #888;
+            font-weight: 600;
+            margin-top: 4px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        /* Test Results Summary */
+        .test-results-summary {
+            display: none;
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border: 1.5px solid #bae6fd;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .test-results-summary.visible {
+            display: block;
+        }
+
+        .test-results-summary h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: #0c4a6e;
+            margin-bottom: 0.8rem;
+        }
+
+        .results-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem 1.5rem;
+        }
+
+        .results-detail-grid .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid rgba(14, 116, 144, 0.1);
+            font-size: 0.9rem;
+        }
+
+        .results-detail-grid .detail-item .label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .results-detail-grid .detail-item .value {
+            color: #0c4a6e;
+            font-weight: 700;
+        }
+
+        /* Risk card */
+        .risk-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 8px 40px rgba(31, 38, 135, 0.1);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 780px;
+            margin-top: 1.5rem;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            pointer-events: none;
+        }
+
+        .risk-card.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .risk-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 1rem;
+        }
+
+        .risk-score {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .risk-low {
+            color: #15803d;
+        }
+
+        .risk-medium {
+            color: #ca8a04;
+        }
+
+        .risk-high {
+            color: #dc2626;
+        }
+
+        .risk-label-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .risk-note {
+            font-size: 0.82rem;
+            color: #888;
+            line-height: 1.5;
+            max-width: 500px;
+            margin: 0 auto;
+            font-style: italic;
+        }
+
+        @media (max-width:600px) {
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .btn-row {
+                flex-direction: column;
+            }
+
+            .page-header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">P</div>
+                Predictamind
+            </a>
+            <a href="select_test.html" class="nav-back">← Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <span class="section-label">Cognitive Assessment</span>
+        <h1>Typing Speed Assessment</h1>
+        <p>Type the passage below as quickly and accurately as possible.</p>
+    </div>
+
+    <div class="card">
+        <div class="guard-warning" id="guardWarning">
+            ⚠️ You are not registered. <a href="register.html">Click here to register first.</a>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-value timing" id="timerDisplay">0s</div>
+                <div class="stat-label">Time Elapsed</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value wpm" id="wpmDisplay">0</div>
+                <div class="stat-label">Words / Min</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value acc" id="accDisplay">100%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-wrapper">
+            <progress id="progressBar" value="0" max="100"></progress>
+        </div>
+
+        <!-- Passage -->
+        <div class="passage-wrapper">
+            <div class="passage-label">📄 Passage to Type</div>
+            <div class="passage-text" id="passageDisplay"></div>
+        </div>
+
+        <!-- Input -->
+        <div class="input-wrapper">
+            <textarea class="typing-area" id="typingArea" placeholder="Click 'Start Test' then begin typing here..."
+                disabled></textarea>
+            <div id="antiCheatMsg"
+                style="display:none;color:#dc2626;font-size:0.82rem;font-weight:600;margin-top:0.4rem;text-align:center;">
+                ⚠️ Copy/Paste is disabled during the test for accurate results.</div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="btn-row">
+            <button class="btn btn-start" id="startBtn">▶ Start Test</button>
+            <button class="btn btn-reset" id="resetBtn">↺ Reset</button>
+        </div>
+
+        <!-- Result -->
+        <div class="result-panel" id="resultPanel">
+            <h3>Test Complete!</h3>
+            <div class="big-stats">
+                <div class="big-stat">
+                    <div class="val" id="finalWpm">–</div>
+                    <div class="lbl">WPM</div>
+                </div>
+                <div class="big-stat">
+                    <div class="val" id="finalAcc">–</div>
+                    <div class="lbl">Accuracy</div>
+                </div>
+                <div class="big-stat">
+                    <div class="val" id="finalTime">–</div>
+                    <div class="lbl">Seconds</div>
+                </div>
+            </div>
+            <p id="savedMsg">Saving your results…</p>
+            <p style="color:#166534;font-size:0.88rem;margin-top:0.8rem;">✅ Both mandatory tests completed! MRI scan is
+                optional.</p>
+            <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;">
+                <a href="results.html" class="btn-next">View My Scores</a>
+                <a href="upload.html" class="btn-next" style="background:#4285F4;">🧠 Take MRI Scan (Optional)</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Cognitive Metrics -->
+    <div class="card metrics-section">
+        <div class="section-title">📊 Live Cognitive Metrics</div>
+        <div class="metrics-grid">
+            <div class="metric-box">
+                <div class="metric-value" id="m-wpm">0</div>
+                <div class="metric-label">WPM</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value" id="m-cpm">0</div>
+                <div class="metric-label">CPM</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value" id="m-backspace">0</div>
+                <div class="metric-label">Backspaces</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value" id="m-errors">0</div>
+                <div class="metric-label">Errors</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value" id="m-accuracy">100%</div>
+                <div class="metric-label">Accuracy</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value" id="m-pauses">0</div>
+                <div class="metric-label">Long Pauses</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value" id="m-avg-delay">0ms</div>
+                <div class="metric-label">Avg Key Delay</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-value" id="m-hesitations">0</div>
+                <div class="metric-label">Hesitations</div>
+            </div>
+        </div>
+        <div class="test-results-summary" id="test-results-summary">
+            <h4>📋 Test Results Summary</h4>
+            <div class="results-detail-grid">
+                <div class="detail-item"><span class="label">WPM</span><span class="value" id="res-wpm">—</span></div>
+                <div class="detail-item"><span class="label">CPM</span><span class="value" id="res-cpm">—</span></div>
+                <div class="detail-item"><span class="label">Accuracy</span><span class="value"
+                        id="res-accuracy">—</span></div>
+                <div class="detail-item"><span class="label">Errors</span><span class="value" id="res-errors">—</span>
+                </div>
+                <div class="detail-item"><span class="label">Backspaces</span><span class="value"
+                        id="res-backspaces">—</span></div>
+                <div class="detail-item"><span class="label">Long Pauses</span><span class="value"
+                        id="res-pauses">—</span></div>
+                <div class="detail-item"><span class="label">Hesitations</span><span class="value"
+                        id="res-hesitations">—</span></div>
+                <div class="detail-item"><span class="label">Avg Key Delay</span><span class="value"
+                        id="res-avg-delay">—</span></div>
+                <div class="detail-item"><span class="label">Risk Score</span><span class="value"
+                        id="res-risk-score">—</span></div>
+                <div class="detail-item"><span class="label">Risk Level</span><span class="value"
+                        id="res-risk-level">—</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Card -->
+    <div class="risk-card" id="risk-card">
+        <div class="risk-title">🧠 Cognitive Risk Indicator</div>
+        <div class="risk-score" id="risk-score-val">--</div>
+        <div class="risk-label-text" id="risk-label-text">--</div>
+        <div class="risk-note">This score is based on typing behavior patterns only. It is NOT a medical diagnosis.
+            Please consult a medical professional for clinical assessment.</div>
+    </div>
+
+    <script>
+        // ── Passage pool ─────────────────────────────────────────
+        const passages = [
+            "The brain is a remarkable organ that controls all aspects of our body. Early detection of neurological changes can significantly improve treatment outcomes and quality of life for patients.",
+            "Memory is a complex process that involves encoding, storing, and retrieving information. Changes in memory patterns can serve as early indicators of cognitive decline in aging adults.",
+            "Regular physical exercise and mental stimulation have been shown to reduce the risk of cognitive diseases. Activities such as reading, puzzles, and social interaction keep the brain healthy.",
+            "The human nervous system is an intricate network of cells that transmit signals throughout the body. Understanding how neurons communicate helps researchers develop better treatments for brain diseases."
+        ];
+
+        const passage = passages[Math.floor(Math.random() * passages.length)];
+
+        // ── State ────────────────────────────────────────────────
+        let started = false, finished = false;
+        let startTime = null, elapsed = 0, timerInterval = null;
+        // Cognitive tracking state
+        let backspaceCount = 0, errorCount = 0;
+        let lastKeystrokeTime = null, pauseCount = 0, hesitationCount = 0;
+        let totalKeyDelay = 0, keyCount = 0;
+        // Edge case tracking
+        let tabSwitchCount = 0, burstErrorCount = 0, consecutiveErrors = 0;
+        let idleTimer = null, tabHiddenAt = null;
+        const IDLE_TIMEOUT_MS = 180000; // 3 minutes
+
+        // ── Elements ─────────────────────────────────────────────
+        const passageDisplay = document.getElementById('passageDisplay');
+        const typingArea = document.getElementById('typingArea');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const resultPanel = document.getElementById('resultPanel');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const wpmDisplay = document.getElementById('wpmDisplay');
+        const accDisplay = document.getElementById('accDisplay');
+        const progressBar = document.getElementById('progressBar');
+
+        // ── Render passage characters ─────────────────────────────
+        function renderPassage(typed) {
+            passageDisplay.innerHTML = passage.split('').map((ch, i) => {
+                let cls = 'ch';
+                if (i < typed.length) {
+                    cls += typed[i] === ch ? ' correct' : ' wrong';
+                } else if (i === typed.length) {
+                    cls += ' current';
+                }
+                return `<span class="${cls}">${ch === ' ' ? '&nbsp;' : ch}</span>`;
+            }).join('');
+        }
+        renderPassage('');
+
+        // ── Timer ─────────────────────────────────────────────────
+        function startTimer() {
+            startTime = Date.now();
+            timerInterval = setInterval(() => {
+                elapsed = Math.floor((Date.now() - startTime) / 1000);
+                timerDisplay.textContent = elapsed + 's';
+            }, 500);
+        }
+
+        function stopTimer() { clearInterval(timerInterval); }
+
+        // ── Stats calc ────────────────────────────────────────────
+        function calcStats(typed) {
+            const totalChars = typed.length;
+            let correct = 0;
+            for (let i = 0; i < totalChars; i++) {
+                if (typed[i] === passage[i]) correct++;
+            }
+            const accuracy = totalChars === 0 ? 100 : Math.round((correct / totalChars) * 100);
+            const minutes = startTime ? (Date.now() - startTime) / 60000 : 0;
+            const words = typed.trim().split(/\s+/).filter(w => w).length;
+            const wpm = minutes > 0.01 ? Math.round(words / minutes) : 0;
+            const cpm = minutes > 0.01 ? Math.round(totalChars / minutes) : 0;
+            return { wpm, accuracy, cpm, errors: totalChars - correct };
+        }
+
+        // ── Keystroke tracking (keydown) ──────────────────────────
+        function onKeyDown(e) {
+            if (!started || finished) return;
+            resetIdleTimer();
+            const now = Date.now();
+            if (e.key === 'Backspace') backspaceCount++;
+            if (lastKeystrokeTime !== null) {
+                const delay = now - lastKeystrokeTime;
+                totalKeyDelay += delay;
+                keyCount++;
+                if (delay > 2000) pauseCount++;
+                else if (delay > 800) hesitationCount++;
+            }
+            lastKeystrokeTime = now;
+        }
+
+        // ── Anti-cheat: block paste/copy/cut/right-click ─────────
+        ['paste', 'cut', 'copy'].forEach(evt => {
+            typingArea.addEventListener(evt, e => {
+                if (started && !finished) {
+                    e.preventDefault();
+                    const msg = document.getElementById('antiCheatMsg');
+                    msg.style.display = 'block';
+                    setTimeout(() => msg.style.display = 'none', 3000);
+                }
+            });
+        });
+        typingArea.addEventListener('contextmenu', e => {
+            if (started && !finished) e.preventDefault();
+        });
+
+        // ── Idle timeout (3 min) ─────────────────────────────────
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+            if (started && !finished) {
+                idleTimer = setTimeout(() => {
+                    if (started && !finished) {
+                        const typed = typingArea.value;
+                        if (typed.length < 10) {
+                            document.getElementById('savedMsg').textContent = '⚠️ Test auto-ended due to inactivity. Too few characters typed — results not saved.';
+                            finished = true; stopTimer();
+                            typingArea.disabled = true;
+                            resultPanel.classList.add('visible');
+                            document.getElementById('finalWpm').textContent = '0';
+                            document.getElementById('finalAcc').textContent = '0%';
+                            document.getElementById('finalTime').textContent = Math.floor(IDLE_TIMEOUT_MS / 1000) + 's';
+                        } else {
+                            finishTest(typed);
+                        }
+                    }
+                }, IDLE_TIMEOUT_MS);
+            }
+        }
+
+        // ── Tab-away detection ───────────────────────────────────
+        document.addEventListener('visibilitychange', () => {
+            if (!started || finished) return;
+            if (document.hidden) {
+                tabHiddenAt = Date.now();
+                tabSwitchCount++;
+            } else {
+                // Don't count time away as key delay
+                if (tabHiddenAt && lastKeystrokeTime !== null) {
+                    lastKeystrokeTime = Date.now();
+                }
+                tabHiddenAt = null;
+            }
+        });
+
+        // ── Update cognitive metrics panel ────────────────────────
+        function updateCognitiveMetrics(typed) {
+            const { wpm, accuracy, cpm, errors } = calcStats(typed);
+            const avgDelay = keyCount > 0 ? Math.round(totalKeyDelay / keyCount) : 0;
+            document.getElementById('m-wpm').textContent = wpm;
+            document.getElementById('m-cpm').textContent = cpm;
+            document.getElementById('m-backspace').textContent = backspaceCount;
+            document.getElementById('m-errors').textContent = errors;
+            document.getElementById('m-accuracy').textContent = accuracy + '%';
+            document.getElementById('m-pauses').textContent = pauseCount;
+            document.getElementById('m-avg-delay').textContent = avgDelay + 'ms';
+            document.getElementById('m-hesitations').textContent = hesitationCount;
+        }
+
+        // ── Update progress bar ───────────────────────────────────
+        function updateProgress(typed) {
+            progressBar.value = Math.min(100, Math.round((typed.length / passage.length) * 100));
+        }
+
+        // ── Input handler ─────────────────────────────────────────
+        typingArea.addEventListener('input', () => {
+            if (!started || finished) return;
+            let typed = typingArea.value;
+            // Cap at passage length
+            if (typed.length > passage.length) {
+                typed = typed.substring(0, passage.length);
+                typingArea.value = typed;
+            }
+            renderPassage(typed);
+
+            const { wpm, accuracy } = calcStats(typed);
+            wpmDisplay.textContent = wpm;
+            accDisplay.textContent = accuracy + '%';
+
+            // Burst error detection
+            if (typed.length > 0) {
+                const lastIdx = typed.length - 1;
+                if (typed[lastIdx] !== passage[lastIdx]) {
+                    consecutiveErrors++;
+                    if (consecutiveErrors === 3) burstErrorCount++;
+                } else {
+                    consecutiveErrors = 0;
+                }
+            }
+
+            updateCognitiveMetrics(typed);
+            updateProgress(typed);
+
+            // Finished?
+            if (typed.length >= passage.length) {
+                finishTest(typed);
+            }
+        });
+
+        // ── Cognitive Risk Score ──────────────────────────────────
+        function computeRisk({ wpm, accuracy, avgDelay, backspaceRate, pauseCount, hesitations }) {
+            let score = 0;
+            if (wpm < 20) score += 30; else if (wpm < 35) score += 20; else if (wpm < 50) score += 10;
+            if (accuracy < 70) score += 25; else if (accuracy < 85) score += 15; else if (accuracy < 95) score += 5;
+            if (avgDelay > 800) score += 20; else if (avgDelay > 500) score += 12; else if (avgDelay > 300) score += 5;
+            if (backspaceRate > 0.3) score += 15; else if (backspaceRate > 0.15) score += 8;
+            score += Math.min(pauseCount * 5, 20);
+            score += Math.min(hesitations * 2, 10);
+            score = Math.min(score, 100);
+
+            const card = document.getElementById('risk-card');
+            const val = document.getElementById('risk-score-val');
+            const lbl = document.getElementById('risk-label-text');
+            val.textContent = score + '/100';
+            card.classList.add('show');
+
+            if (score < 30) {
+                val.className = 'risk-score risk-low';
+                lbl.textContent = '🟢 Low Risk — Typing patterns appear normal';
+                lbl.style.color = '#15803d';
+            } else if (score < 60) {
+                val.className = 'risk-score risk-medium';
+                lbl.textContent = '🟡 Moderate Risk — Some unusual patterns detected';
+                lbl.style.color = '#ca8a04';
+            } else {
+                val.className = 'risk-score risk-high';
+                lbl.textContent = '🔴 High Risk — Significant irregularities observed';
+                lbl.style.color = '#dc2626';
+            }
+
+            return score;
+        }
+
+        // ── Finish ────────────────────────────────────────────────
+        async function finishTest(typed) {
+            if (finished) return; // Double-finish guard
+            finished = true;
+            stopTimer();
+            clearTimeout(idleTimer);
+            typingArea.disabled = true;
+            typingArea.removeEventListener('keydown', onKeyDown);
+
+            const { wpm, accuracy, cpm, errors } = calcStats(typed);
+            elapsed = Math.floor((Date.now() - startTime) / 1000);
+
+            document.getElementById('finalWpm').textContent = wpm;
+            document.getElementById('finalAcc').textContent = accuracy + '%';
+            document.getElementById('finalTime').textContent = elapsed + 's';
+            resultPanel.classList.add('visible');
+
+            // Compute and show risk score
+            const avgDelay = keyCount > 0 ? totalKeyDelay / keyCount : 0;
+            const backspaceRate = keyCount > 0 ? backspaceCount / keyCount : 0;
+            const riskScore = computeRisk({ wpm, accuracy, avgDelay, backspaceRate, pauseCount, hesitations: hesitationCount });
+
+            // Determine risk level text
+            let riskLevel = '';
+            if (riskScore < 30) riskLevel = '🟢 Low Risk';
+            else if (riskScore < 60) riskLevel = '🟡 Moderate Risk';
+            else riskLevel = '🔴 High Risk';
+
+            // Populate results summary panel
+            document.getElementById('res-wpm').textContent = wpm;
+            document.getElementById('res-cpm').textContent = cpm;
+            document.getElementById('res-accuracy').textContent = accuracy + '%';
+            document.getElementById('res-errors').textContent = errors;
+            document.getElementById('res-backspaces').textContent = backspaceCount;
+            document.getElementById('res-pauses').textContent = pauseCount;
+            document.getElementById('res-hesitations').textContent = hesitationCount;
+            document.getElementById('res-avg-delay').textContent = Math.round(avgDelay) + 'ms';
+            document.getElementById('res-risk-score').textContent = riskScore + '/100';
+            document.getElementById('res-risk-level').textContent = riskLevel;
+            document.getElementById('test-results-summary').classList.add('visible');
+
+            // Mark typing test as done in session
+            sessionStorage.setItem('typing_done', '1');
+            sessionStorage.setItem('typing_wpm', wpm);
+            sessionStorage.setItem('typing_acc', accuracy);
+            sessionStorage.setItem('typing_risk_score', riskScore);
+            sessionStorage.setItem('typing_risk_level', riskLevel);
+            sessionStorage.setItem('typing_backspaces', backspaceCount);
+            sessionStorage.setItem('typing_pauses', pauseCount);
+            sessionStorage.setItem('typing_hesitations', hesitationCount);
+            sessionStorage.setItem('typing_avg_delay', Math.round(avgDelay));
+
+            // Save to server
+            const patientId = sessionStorage.getItem('patient_id');
+            if (patientId) {
+                try {
+                    await fetch('/save_typing_result', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            patient_id: parseInt(patientId),
+                            wpm, accuracy,
+                            test_text: passage,
+                            risk_score: riskScore,
+                            backspace_count: backspaceCount,
+                            pause_count: pauseCount,
+                            hesitation_count: hesitationCount,
+                            avg_key_delay: Math.round(avgDelay)
+                        })
+                    });
+                    document.getElementById('savedMsg').textContent = 'Results saved to your profile.';
+                } catch {
+                    document.getElementById('savedMsg').textContent = 'Could not save results (server offline).';
+                }
+            } else {
+                document.getElementById('savedMsg').textContent = 'Not registered — results not saved.';
+            }
+        }
+
+        // ── Start button ──────────────────────────────────────────
+        startBtn.addEventListener('click', () => {
+            if (started) return;
+            started = true;
+            typingArea.disabled = false;
+            typingArea.setAttribute('maxlength', passage.length);
+            typingArea.focus();
+            typingArea.placeholder = 'Start typing now…';
+            startBtn.disabled = true;
+            startBtn.textContent = '⏱ In Progress…';
+            document.getElementById('risk-card').classList.remove('show');
+            typingArea.addEventListener('keydown', onKeyDown);
+            startTimer();
+            resetIdleTimer();
+        });
+
+        // ── Reset button ──────────────────────────────────────────
+        resetBtn.addEventListener('click', () => {
+            started = false; finished = false;
+            stopTimer(); elapsed = 0;
+            clearTimeout(idleTimer);
+            // Reset cognitive state
+            backspaceCount = 0; errorCount = 0;
+            lastKeystrokeTime = null; pauseCount = 0; hesitationCount = 0;
+            totalKeyDelay = 0; keyCount = 0;
+            tabSwitchCount = 0; burstErrorCount = 0; consecutiveErrors = 0;
+            tabHiddenAt = null;
+            // Reset UI
+            typingArea.value = '';
+            typingArea.disabled = true;
+            typingArea.removeAttribute('maxlength');
+            typingArea.placeholder = "Click 'Start Test' then begin typing here...";
+            typingArea.removeEventListener('keydown', onKeyDown);
+            startBtn.disabled = false;
+            startBtn.textContent = '▶ Start Test';
+            timerDisplay.textContent = '0s';
+            wpmDisplay.textContent = '0';
+            accDisplay.textContent = '100%';
+            progressBar.value = 0;
+            resultPanel.classList.remove('visible');
+            document.getElementById('risk-card').classList.remove('show');
+            document.getElementById('test-results-summary').classList.remove('visible');
+            document.getElementById('antiCheatMsg').style.display = 'none';
+            // Reset cognitive metrics display
+            document.getElementById('m-wpm').textContent = '0';
+            document.getElementById('m-cpm').textContent = '0';
+            document.getElementById('m-backspace').textContent = '0';
+            document.getElementById('m-errors').textContent = '0';
+            document.getElementById('m-accuracy').textContent = '100%';
+            document.getElementById('m-pauses').textContent = '0';
+            document.getElementById('m-avg-delay').textContent = '0ms';
+            document.getElementById('m-hesitations').textContent = '0';
+            renderPassage('');
+        });
+
+        // ── Guard ─────────────────────────────────────────────────
+        if (!sessionStorage.getItem('patient_id')) {
+            document.getElementById('guardWarning').classList.add('visible');
+        }
+    </script>
+</body>
+
+</html>
