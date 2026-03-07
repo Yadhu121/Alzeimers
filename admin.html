@@ -512,6 +512,13 @@
                 return;
             }
 
+            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/;
+            if (!passwordPattern.test(password)) {
+                errEl.textContent = 'Password must be at least 8 characters long, include a capital letter, a lowercase letter, and a special character.';
+                errEl.style.display = 'block';
+                return;
+            }
+
             try {
                 const res = await fetch('/register_admin', {
                     method: 'POST',
@@ -704,6 +711,14 @@
 
             if (!email || !password) {
                 msgEl.textContent = 'Please enter both email and password.';
+                msgEl.style.color = '#dc2626';
+                msgEl.style.display = 'block';
+                return;
+            }
+
+            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/;
+            if (!passwordPattern.test(password)) {
+                msgEl.textContent = 'Password must be at least 8 characters long, include a capital letter, a lowercase letter, and a special character.';
                 msgEl.style.color = '#dc2626';
                 msgEl.style.display = 'block';
                 return;
