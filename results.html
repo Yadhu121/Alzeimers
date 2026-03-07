@@ -269,7 +269,10 @@
             <h2>Overall Assessment</h2>
             <p id="combinedSummary">Complete all three tests for a comprehensive AI-powered neurological analysis. Your
                 current results provide a preliminary insight into your cognitive health.</p>
-            <div style="margin-top:2rem;">
+            <div style="margin-top:2rem; display:flex; flex-wrap:wrap; justify-content:center; gap:1rem;">
+                <button onclick="downloadComprehensiveReport()" class="btn btn-secondary"
+                    style="background:#1d4ed8; color:white; border:none; cursor:pointer;">📥 Download Comprehensive
+                    Report</button>
                 <a href="upload.html" class="btn btn-primary">🧠 Take MRI Scan (Optional)</a>
                 <a href="select_test.html" class="btn btn-secondary">Dashboard</a>
             </div>
@@ -294,7 +297,9 @@
             document.getElementById('blinkStatus').textContent = 'Completed';
             document.getElementById('blinkStatus').className = 'status-badge done';
             const count = sessionStorage.getItem('blink_count');
-            document.getElementById('blinkData').innerHTML = `Detected <strong>${count}</strong> blinks in 30 seconds.<br><small style="color:#666">${count >= 8 ? 'Normal frequency detected.' : 'Deviated from average range.'}</small>`;
+            let blinkHtml = `Detected <strong>${count}</strong> blinks in 30 seconds.<br><small style="color:#666">${count >= 8 ? 'Normal frequency detected.' : 'Deviated from average range.'}</small>`;
+            blinkHtml += `<br><button onclick="downloadBlinkReport()" style="margin-top:0.8rem; padding:0.5rem 1rem; background:#f59e0b; color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer;">📥 Download Report</button>`;
+            document.getElementById('blinkData').innerHTML = blinkHtml;
         }
 
         // MRI
@@ -302,7 +307,9 @@
             document.getElementById('mriStatus').textContent = 'Completed';
             document.getElementById('mriStatus').className = 'status-badge done';
             const mriClass = sessionStorage.getItem('mri_class') || 'Analyzed';
-            document.getElementById('mriData').innerHTML = `Classification: <strong>${mriClass}</strong><br><small style="color:#666">AI analysis of structural imaging completed.</small>`;
+            let mriHtml = `Classification: <strong>${mriClass}</strong><br><small style="color:#666">AI analysis of structural imaging completed.</small>`;
+            mriHtml += `<br><button onclick="downloadMRIReport()" style="margin-top:0.8rem; padding:0.5rem 1rem; background:#f59e0b; color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer;">📥 Download Report</button>`;
+            document.getElementById('mriData').innerHTML = mriHtml;
         } else {
             document.getElementById('mriData').innerHTML = 'Not taken yet. <a href="upload.html" style="color:#1d4ed8;font-weight:600;">Take MRI Scan (Optional)</a>';
         }
@@ -341,7 +348,146 @@
                 </div>`;
             }
 
+            typeHtml += `<br><button onclick="downloadTypingReport()" style="margin-top:0.8rem; padding:0.5rem 1rem; background:#f59e0b; color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer;">📥 Download Report</button>`;
+
             document.getElementById('typeData').innerHTML = typeHtml;
+        }
+
+        function downloadTypingReport() {
+            if (sessionStorage.getItem('typing_done') !== '1') return;
+            const wpm = sessionStorage.getItem('typing_wpm');
+            const accuracy = sessionStorage.getItem('typing_acc');
+            const riskScore = sessionStorage.getItem('typing_risk_score') || 'N/A';
+            const riskLevel = sessionStorage.getItem('typing_risk_level') || 'N/A';
+            const backspaces = sessionStorage.getItem('typing_backspaces') || '0';
+            const pauses = sessionStorage.getItem('typing_pauses') || '0';
+            const hesitations = sessionStorage.getItem('typing_hesitations') || '0';
+            const avgDelay = sessionStorage.getItem('typing_avg_delay') || '0';
+
+            let reportContent = `Typing Speed Assessment Report\n===============================\n\n`;
+            reportContent += `Date: ${new Date().toLocaleString()}\n`;
+            if (sessionStorage.getItem('patient_id')) {
+                reportContent += `Patient ID: ${sessionStorage.getItem('patient_id')}\n`;
+            }
+            if (sessionStorage.getItem('patient_name')) {
+                reportContent += `Patient Name: ${sessionStorage.getItem('patient_name')}\n`;
+            }
+            reportContent += `\nMetrics:\n`;
+            reportContent += `WPM: ${wpm}\n`;
+            reportContent += `Accuracy: ${accuracy}%\n`;
+            reportContent += `Backspaces: ${backspaces}\n`;
+            reportContent += `Long Pauses: ${pauses}\n`;
+            reportContent += `Hesitations: ${hesitations}\n`;
+            reportContent += `Avg Key Delay: ${avgDelay}ms\n`;
+            reportContent += `\nRisk Assessment:\n`;
+            reportContent += `Risk Score: ${riskScore}\n`;
+            reportContent += `Risk Level: ${riskLevel}\n`;
+
+            const blob = new Blob([reportContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `typing_report_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadBlinkReport() {
+            if (sessionStorage.getItem('blink_done') !== '1') return;
+            const count = sessionStorage.getItem('blink_count');
+            let reportContent = `Blink Assessment Report\n=======================\n\n`;
+            reportContent += `Date: ${new Date().toLocaleString()}\n`;
+            if (sessionStorage.getItem('patient_id')) {
+                reportContent += `Patient ID: ${sessionStorage.getItem('patient_id')}\n`;
+            }
+            if (sessionStorage.getItem('patient_name')) {
+                reportContent += `Patient Name: ${sessionStorage.getItem('patient_name')}\n`;
+            }
+            reportContent += `\nMetrics:\n`;
+            reportContent += `Blinks Detected (30s): ${count}\n`;
+            reportContent += `Assessment: ${count >= 8 ? 'Normal frequency detected.' : 'Deviated from average range.'}\n`;
+
+            const blob = new Blob([reportContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `blink_report_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadMRIReport() {
+            if (sessionStorage.getItem('mri_done') !== '1') return;
+            const mriClass = sessionStorage.getItem('mri_class') || 'Analyzed';
+            let reportContent = `MRI Scan Assessment Report\n==========================\n\n`;
+            reportContent += `Date: ${new Date().toLocaleString()}\n`;
+            if (sessionStorage.getItem('patient_id')) {
+                reportContent += `Patient ID: ${sessionStorage.getItem('patient_id')}\n`;
+            }
+            if (sessionStorage.getItem('patient_name')) {
+                reportContent += `Patient Name: ${sessionStorage.getItem('patient_name')}\n`;
+            }
+            reportContent += `\nClassification Result:\n`;
+            reportContent += `Diagnosis: ${mriClass}\n`;
+
+            const blob = new Blob([reportContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mri_report_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadComprehensiveReport() {
+            let reportContent = `Comprehensive AI-Powered Assessment Report\n==========================================\n\n`;
+            reportContent += `Report Generated: ${new Date().toLocaleString()}\n`;
+            if (sessionStorage.getItem('patient_id')) {
+                reportContent += `Patient ID: ${sessionStorage.getItem('patient_id')}\n`;
+            }
+            if (sessionStorage.getItem('patient_name')) {
+                reportContent += `Patient Name: ${sessionStorage.getItem('patient_name')}\n`;
+            }
+
+            reportContent += `\n--- 1. Eye Tracking / Blink Assessment ---\n`;
+            if (sessionStorage.getItem('blink_done') === '1') {
+                const count = sessionStorage.getItem('blink_count');
+                reportContent += `Blinks Detected (30s): ${count}\n`;
+                reportContent += `Assessment: ${count >= 8 ? 'Normal frequency detected.' : 'Deviated from average range.'}\n`;
+            } else {
+                reportContent += `Status: Not Completed\n`;
+            }
+
+            reportContent += `\n--- 2. Cognitive Typing Speed Assessment ---\n`;
+            if (sessionStorage.getItem('typing_done') === '1') {
+                reportContent += `Speed: ${sessionStorage.getItem('typing_wpm')} WPM\n`;
+                reportContent += `Accuracy: ${sessionStorage.getItem('typing_acc')}%\n`;
+                reportContent += `Backspaces: ${sessionStorage.getItem('typing_backspaces') || '0'}\n`;
+                reportContent += `Long Pauses: ${sessionStorage.getItem('typing_pauses') || '0'}\n`;
+                reportContent += `Hesitations: ${sessionStorage.getItem('typing_hesitations') || '0'}\n`;
+                reportContent += `Avg Key Delay: ${sessionStorage.getItem('typing_avg_delay') || '0'}ms\n`;
+                reportContent += `Risk Score: ${sessionStorage.getItem('typing_risk_score') || 'N/A'}/100\n`;
+                reportContent += `Risk Level: ${sessionStorage.getItem('typing_risk_level') || 'N/A'}\n`;
+            } else {
+                reportContent += `Status: Not Completed\n`;
+            }
+
+            reportContent += `\n--- 3. Structural MRI Scan Analysis ---\n`;
+            if (sessionStorage.getItem('mri_done') === '1') {
+                reportContent += `Classification: ${sessionStorage.getItem('mri_class') || 'Analyzed'}\n`;
+            } else {
+                reportContent += `Status: Not Completed (Optional)\n`;
+            }
+
+            reportContent += `\n\nNote: This is an AI-assisted screening report and not a formal medical diagnosis.`;
+
+            const blob = new Blob([reportContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `comprehensive_report_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
         }
 
         // Final text
