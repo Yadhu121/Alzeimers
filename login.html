@@ -43,7 +43,6 @@
             color: #222;
         }
 
-        /* Navbar */
         .navbar {
             position: fixed;
             top: 0;
@@ -98,7 +97,6 @@
             background: #444;
         }
 
-        /* Page header */
         .page-header {
             text-align: center;
             margin-bottom: 2rem;
@@ -145,7 +143,6 @@
             font-size: 1rem;
         }
 
-        /* Card */
         .card {
             background: var(--glass-bg);
             backdrop-filter: blur(14px);
@@ -157,7 +154,6 @@
             max-width: 460px;
         }
 
-        /* Tabs */
         .tabs {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -187,7 +183,6 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
         }
 
-        /* Form elements */
         .form-group {
             margin-bottom: 1.25rem;
         }
@@ -227,7 +222,6 @@
             color: #aab;
         }
 
-        /* Submit button */
         .submit-btn {
             width: 100%;
             padding: 1rem;
@@ -276,7 +270,6 @@
             }
         }
 
-        /* Feedback banners */
         .msg-box {
             display: none;
             padding: 0.8rem 1rem;
@@ -301,7 +294,6 @@
             color: #059669;
         }
 
-        /* Divider */
         .divider {
             text-align: center;
             font-size: 0.85rem;
@@ -326,7 +318,6 @@
             position: relative;
         }
 
-        /* Register link */
         .register-link {
             text-align: center;
             font-size: 0.9rem;
@@ -343,7 +334,6 @@
             text-decoration: underline;
         }
 
-        /* Welcome banner shown after login */
         #welcomeBanner {
             display: none;
             text-align: center;
@@ -377,13 +367,11 @@
     </div>
 
     <div class="card">
-        <!-- Tabs -->
         <div class="tabs">
             <button class="tab-btn active" id="tabLogin" onclick="showTab('login')">Log In</button>
             <button class="tab-btn" id="tabRegister" onclick="showTab('register')">New Patient</button>
         </div>
 
-        <!-- LOGIN FORM -->
         <div id="loginPanel">
             <form id="loginForm">
                 <div class="form-group">
@@ -400,7 +388,6 @@
             </form>
         </div>
 
-        <!-- REGISTER REDIRECT PANEL -->
         <div id="registerPanel" style="display:none;">
             <p style="color:#64748b;font-size:0.9rem;margin-bottom:1.5rem;line-height:1.7;">
                 First time here? Create your patient profile to begin your Alzheimer's detection assessment. It only
@@ -424,8 +411,6 @@
     </div>
 
     <script>
-        // If already logged in, show a soft prompt instead of hard-redirecting
-        // (so user can still switch to New Patient tab to re-register)
 
         function showTab(tab) {
             const isLogin = tab === 'login';
@@ -467,7 +452,6 @@
                     return;
                 }
 
-                // Success — save session, show banner, redirect
                 sessionStorage.setItem('patient_id', data.patient_id);
                 sessionStorage.setItem('patient_name', data.name);
 
@@ -475,7 +459,6 @@
                 document.getElementById('welcomeName').textContent = `Welcome back, ${data.name}!`;
                 banner.style.display = 'block';
 
-                // Fetch test history from server to set session flags
                 try {
                     const histRes = await fetch(`/get_patient/${data.patient_id}`);
                     if (histRes.ok) {
@@ -506,9 +489,8 @@
                             sessionStorage.setItem('mri_class', hist.scans[0].predicted_class);
                         }
                     }
-                } catch (e) { /* proceed with redirect even if history fetch fails */ }
+                } catch (e) {}
 
-                // Redirect based on test progress
                 let dest = 'blink_detection.html';
                 if (sessionStorage.getItem('blink_done') === '1') {
                     dest = sessionStorage.getItem('typing_done') === '1' ? 'select_test.html' : 'typing_test.html';
