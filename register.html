@@ -503,6 +503,19 @@
                 return;
             }
 
+            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/;
+            if (!passwordPattern.test(password)) {
+                errorMsg.textContent = 'Password must be at least 8 characters long, include a capital letter, a small letter, and a special character.';
+                errorMsg.classList.add('visible');
+                return;
+            }
+
+            if (phone && !/^\d{10}$/.test(phone)) {
+                errorMsg.textContent = 'Phone number must be exactly 10 digits.';
+                errorMsg.classList.add('visible');
+                return;
+            }
+
             submitBtn.disabled = true;
             submitBtn.classList.add('loading');
             submitBtn.innerHTML = '<span class="spinner"></span>Registering...';
