@@ -695,6 +695,8 @@
                 optional.</p>
             <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;">
                 <a href="results.html" class="btn-next">View My Scores</a>
+                <button id="downloadReportBtn" class="btn-next" style="background:#f59e0b; border:none; cursor:pointer;"
+                    onclick="downloadTypingReport()">📥 Download Report</button>
                 <a href="upload.html" class="btn-next" style="background:#4285F4;">🧠 Take MRI Scan (Optional)</a>
             </div>
         </div>
@@ -1000,6 +1002,49 @@
             }
 
             return score;
+        }
+
+        // ── Download Report ───────────────────────────────────────
+        function downloadTypingReport() {
+            if (!finished) {
+                alert("Please finish the test first to download the report.");
+                return;
+            }
+
+            const wpm = document.getElementById('res-wpm').textContent;
+            const accuracy = document.getElementById('res-accuracy').textContent;
+            const errors = document.getElementById('res-errors').textContent;
+            const backspaces = document.getElementById('res-backspaces').textContent;
+            const pauses = document.getElementById('res-pauses').textContent;
+            const hesitations = document.getElementById('res-hesitations').textContent;
+            const avgDelay = document.getElementById('res-avg-delay').textContent;
+            const riskScore = document.getElementById('res-risk-score').textContent;
+            const riskLevel = document.getElementById('res-risk-level').textContent;
+
+            let reportContent = `Typing Speed Assessment Report\n===============================\n\n`;
+            reportContent += `Date: ${new Date().toLocaleString()}\n`;
+            if (sessionStorage.getItem('patient_id')) {
+                reportContent += `Patient ID: ${sessionStorage.getItem('patient_id')}\n`;
+            }
+            reportContent += `\nMetrics:\n`;
+            reportContent += `WPM: ${wpm}\n`;
+            reportContent += `Accuracy: ${accuracy}\n`;
+            reportContent += `Errors: ${errors}\n`;
+            reportContent += `Backspaces: ${backspaces}\n`;
+            reportContent += `Long Pauses: ${pauses}\n`;
+            reportContent += `Hesitations: ${hesitations}\n`;
+            reportContent += `Avg Key Delay: ${avgDelay}\n`;
+            reportContent += `\nRisk Assessment:\n`;
+            reportContent += `Risk Score: ${riskScore}\n`;
+            reportContent += `Risk Level: ${riskLevel}\n`;
+
+            const blob = new Blob([reportContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `typing_report_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
         }
 
         // ── Finish ────────────────────────────────────────────────
