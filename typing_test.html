@@ -39,7 +39,6 @@
             cursor: none;
         }
 
-        /* Navbar */
         .navbar {
             position: fixed;
             top: 0;
@@ -100,7 +99,6 @@
             transform: translateY(-2px);
         }
 
-        /* Header */
         .page-header {
             text-align: center;
             margin-top: 6.5rem;
@@ -131,7 +129,6 @@
             font-size: 0.95rem;
         }
 
-        /* Main card */
         .card {
             background: var(--glass-bg);
             backdrop-filter: blur(14px);
@@ -144,7 +141,6 @@
             max-width: 780px;
         }
 
-        /* Stats row */
         .stats-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -189,7 +185,6 @@
             color: #EA4335;
         }
 
-        /* Passage display */
         .passage-wrapper {
             margin-bottom: 1.5rem;
         }
@@ -240,7 +235,6 @@
             border-radius: 3px;
         }
 
-        /* Textarea */
         .input-wrapper {
             margin-bottom: 1.5rem;
         }
@@ -271,7 +265,6 @@
             cursor: not-allowed;
         }
 
-        /* Buttons */
         .btn-row {
             display: flex;
             gap: 1rem;
@@ -309,7 +302,6 @@
             background: #e2e8f0;
         }
 
-        /* Result panel */
         .result-panel {
             display: none;
             margin-top: 1.5rem;
@@ -378,7 +370,6 @@
             transform: translateY(-2px);
         }
 
-        /* Guard warning */
         .guard-warning {
             display: none;
             background: rgba(254, 242, 242, 0.9);
@@ -394,7 +385,6 @@
             display: block;
         }
 
-        /* Progress bar */
         .progress-wrapper {
             margin-bottom: 1.5rem;
         }
@@ -423,7 +413,6 @@
             border-radius: 8px;
         }
 
-        /* Expanded metrics grid */
         .metrics-section {
             margin-top: 2rem;
         }
@@ -477,7 +466,6 @@
             text-transform: uppercase;
         }
 
-        /* Test Results Summary */
         .test-results-summary {
             display: none;
             background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
@@ -522,7 +510,6 @@
             font-weight: 700;
         }
 
-        /* Risk card */
         .risk-card {
             background: var(--glass-bg);
             backdrop-filter: blur(14px);
@@ -631,7 +618,6 @@
             ⚠️ You are not registered. <a href="register.html">Click here to register first.</a>
         </div>
 
-        <!-- Stats -->
         <div class="stats-row">
             <div class="stat-box">
                 <div class="stat-value timing" id="timerDisplay">0s</div>
@@ -647,18 +633,15 @@
             </div>
         </div>
 
-        <!-- Progress Bar -->
         <div class="progress-wrapper">
             <progress id="progressBar" value="0" max="100"></progress>
         </div>
 
-        <!-- Passage -->
         <div class="passage-wrapper">
             <div class="passage-label">📄 Passage to Type</div>
             <div class="passage-text" id="passageDisplay"></div>
         </div>
 
-        <!-- Input -->
         <div class="input-wrapper">
             <textarea class="typing-area" id="typingArea" placeholder="Click 'Start Test' then begin typing here..."
                 disabled></textarea>
@@ -667,13 +650,11 @@
                 ⚠️ Copy/Paste is disabled during the test for accurate results.</div>
         </div>
 
-        <!-- Buttons -->
         <div class="btn-row">
             <button class="btn btn-start" id="startBtn">▶ Start Test</button>
             <button class="btn btn-reset" id="resetBtn">↺ Reset</button>
         </div>
 
-        <!-- Result -->
         <div class="result-panel" id="resultPanel">
             <h3>Test Complete!</h3>
             <div class="big-stats">
@@ -702,7 +683,6 @@
         </div>
     </div>
 
-    <!-- Live Cognitive Metrics -->
     <div class="card metrics-section">
         <div class="section-title">📊 Live Cognitive Metrics</div>
         <div class="metrics-grid">
@@ -764,7 +744,6 @@
         </div>
     </div>
 
-    <!-- Risk Card -->
     <div class="risk-card" id="risk-card">
         <div class="risk-title">🧠 Cognitive Risk Indicator</div>
         <div class="risk-score" id="risk-score-val">--</div>
@@ -774,7 +753,6 @@
     </div>
 
     <script>
-        // ── Passage pool ─────────────────────────────────────────
         const passages = [
             "The brain is a remarkable organ that controls all aspects of our body. Early detection of neurological changes can significantly improve treatment outcomes and quality of life for patients.",
             "Memory is a complex process that involves encoding, storing, and retrieving information. Changes in memory patterns can serve as early indicators of cognitive decline in aging adults.",
@@ -784,19 +762,15 @@
 
         const passage = passages[Math.floor(Math.random() * passages.length)];
 
-        // ── State ────────────────────────────────────────────────
         let started = false, finished = false;
         let startTime = null, elapsed = 0, timerInterval = null;
-        // Cognitive tracking state
         let backspaceCount = 0, errorCount = 0;
         let lastKeystrokeTime = null, pauseCount = 0, hesitationCount = 0;
         let totalKeyDelay = 0, keyCount = 0;
-        // Edge case tracking
         let tabSwitchCount = 0, burstErrorCount = 0, consecutiveErrors = 0;
         let idleTimer = null, tabHiddenAt = null;
-        const IDLE_TIMEOUT_MS = 180000; // 3 minutes
+        const IDLE_TIMEOUT_MS = 180000;
 
-        // ── Elements ─────────────────────────────────────────────
         const passageDisplay = document.getElementById('passageDisplay');
         const typingArea = document.getElementById('typingArea');
         const startBtn = document.getElementById('startBtn');
@@ -807,7 +781,6 @@
         const accDisplay = document.getElementById('accDisplay');
         const progressBar = document.getElementById('progressBar');
 
-        // ── Render passage characters ─────────────────────────────
         function renderPassage(typed) {
             passageDisplay.innerHTML = passage.split('').map((ch, i) => {
                 let cls = 'ch';
@@ -821,7 +794,6 @@
         }
         renderPassage('');
 
-        // ── Timer ─────────────────────────────────────────────────
         function startTimer() {
             startTime = Date.now();
             timerInterval = setInterval(() => {
@@ -832,7 +804,6 @@
 
         function stopTimer() { clearInterval(timerInterval); }
 
-        // ── Stats calc ────────────────────────────────────────────
         function calcStats(typed) {
             const totalChars = typed.length;
             let correct = 0;
@@ -847,7 +818,6 @@
             return { wpm, accuracy, cpm, errors: totalChars - correct };
         }
 
-        // ── Keystroke tracking (keydown) ──────────────────────────
         function onKeyDown(e) {
             if (!started || finished) return;
             resetIdleTimer();
@@ -863,7 +833,6 @@
             lastKeystrokeTime = now;
         }
 
-        // ── Anti-cheat: block paste/copy/cut/right-click ─────────
         ['paste', 'cut', 'copy'].forEach(evt => {
             typingArea.addEventListener(evt, e => {
                 if (started && !finished) {
@@ -878,7 +847,6 @@
             if (started && !finished) e.preventDefault();
         });
 
-        // ── Idle timeout (3 min) ─────────────────────────────────
         function resetIdleTimer() {
             clearTimeout(idleTimer);
             if (started && !finished) {
@@ -901,14 +869,12 @@
             }
         }
 
-        // ── Tab-away detection ───────────────────────────────────
         document.addEventListener('visibilitychange', () => {
             if (!started || finished) return;
             if (document.hidden) {
                 tabHiddenAt = Date.now();
                 tabSwitchCount++;
             } else {
-                // Don't count time away as key delay
                 if (tabHiddenAt && lastKeystrokeTime !== null) {
                     lastKeystrokeTime = Date.now();
                 }
@@ -916,7 +882,6 @@
             }
         });
 
-        // ── Update cognitive metrics panel ────────────────────────
         function updateCognitiveMetrics(typed) {
             const { wpm, accuracy, cpm, errors } = calcStats(typed);
             const avgDelay = keyCount > 0 ? Math.round(totalKeyDelay / keyCount) : 0;
@@ -930,16 +895,13 @@
             document.getElementById('m-hesitations').textContent = hesitationCount;
         }
 
-        // ── Update progress bar ───────────────────────────────────
         function updateProgress(typed) {
             progressBar.value = Math.min(100, Math.round((typed.length / passage.length) * 100));
         }
 
-        // ── Input handler ─────────────────────────────────────────
         typingArea.addEventListener('input', () => {
             if (!started || finished) return;
             let typed = typingArea.value;
-            // Cap at passage length
             if (typed.length > passage.length) {
                 typed = typed.substring(0, passage.length);
                 typingArea.value = typed;
@@ -950,7 +912,6 @@
             wpmDisplay.textContent = wpm;
             accDisplay.textContent = accuracy + '%';
 
-            // Burst error detection
             if (typed.length > 0) {
                 const lastIdx = typed.length - 1;
                 if (typed[lastIdx] !== passage[lastIdx]) {
@@ -964,13 +925,11 @@
             updateCognitiveMetrics(typed);
             updateProgress(typed);
 
-            // Finished?
             if (typed.length >= passage.length) {
                 finishTest(typed);
             }
         });
 
-        // ── Cognitive Risk Score ──────────────────────────────────
         function computeRisk({ wpm, accuracy, avgDelay, backspaceRate, pauseCount, hesitations }) {
             let score = 0;
             if (wpm < 20) score += 30; else if (wpm < 35) score += 20; else if (wpm < 50) score += 10;
@@ -1004,7 +963,6 @@
             return score;
         }
 
-        // ── Download Report ───────────────────────────────────────
         function downloadTypingReport() {
             if (!finished) {
                 alert("Please finish the test first to download the report.");
@@ -1047,9 +1005,8 @@
             URL.revokeObjectURL(url);
         }
 
-        // ── Finish ────────────────────────────────────────────────
         async function finishTest(typed) {
-            if (finished) return; // Double-finish guard
+            if (finished) return;
             finished = true;
             stopTimer();
             clearTimeout(idleTimer);
@@ -1064,18 +1021,15 @@
             document.getElementById('finalTime').textContent = elapsed + 's';
             resultPanel.classList.add('visible');
 
-            // Compute and show risk score
             const avgDelay = keyCount > 0 ? totalKeyDelay / keyCount : 0;
             const backspaceRate = keyCount > 0 ? backspaceCount / keyCount : 0;
             const riskScore = computeRisk({ wpm, accuracy, avgDelay, backspaceRate, pauseCount, hesitations: hesitationCount });
 
-            // Determine risk level text
             let riskLevel = '';
             if (riskScore < 30) riskLevel = '🟢 Low Risk';
             else if (riskScore < 60) riskLevel = '🟡 Moderate Risk';
             else riskLevel = '🔴 High Risk';
 
-            // Populate results summary panel
             document.getElementById('res-wpm').textContent = wpm;
             document.getElementById('res-cpm').textContent = cpm;
             document.getElementById('res-accuracy').textContent = accuracy + '%';
@@ -1088,7 +1042,6 @@
             document.getElementById('res-risk-level').textContent = riskLevel;
             document.getElementById('test-results-summary').classList.add('visible');
 
-            // Mark typing test as done in session
             sessionStorage.setItem('typing_done', '1');
             sessionStorage.setItem('typing_wpm', wpm);
             sessionStorage.setItem('typing_acc', accuracy);
@@ -1099,7 +1052,6 @@
             sessionStorage.setItem('typing_hesitations', hesitationCount);
             sessionStorage.setItem('typing_avg_delay', Math.round(avgDelay));
 
-            // Save to server
             const patientId = sessionStorage.getItem('patient_id');
             if (patientId) {
                 try {
@@ -1126,7 +1078,6 @@
             }
         }
 
-        // ── Start button ──────────────────────────────────────────
         startBtn.addEventListener('click', () => {
             if (started) return;
             started = true;
@@ -1142,18 +1093,15 @@
             resetIdleTimer();
         });
 
-        // ── Reset button ──────────────────────────────────────────
         resetBtn.addEventListener('click', () => {
             started = false; finished = false;
             stopTimer(); elapsed = 0;
             clearTimeout(idleTimer);
-            // Reset cognitive state
             backspaceCount = 0; errorCount = 0;
             lastKeystrokeTime = null; pauseCount = 0; hesitationCount = 0;
             totalKeyDelay = 0; keyCount = 0;
             tabSwitchCount = 0; burstErrorCount = 0; consecutiveErrors = 0;
             tabHiddenAt = null;
-            // Reset UI
             typingArea.value = '';
             typingArea.disabled = true;
             typingArea.removeAttribute('maxlength');
@@ -1169,7 +1117,6 @@
             document.getElementById('risk-card').classList.remove('show');
             document.getElementById('test-results-summary').classList.remove('visible');
             document.getElementById('antiCheatMsg').style.display = 'none';
-            // Reset cognitive metrics display
             document.getElementById('m-wpm').textContent = '0';
             document.getElementById('m-cpm').textContent = '0';
             document.getElementById('m-backspace').textContent = '0';
@@ -1181,7 +1128,6 @@
             renderPassage('');
         });
 
-        // ── Guard ─────────────────────────────────────────────────
         if (!sessionStorage.getItem('patient_id')) {
             document.getElementById('guardWarning').classList.add('visible');
         }
