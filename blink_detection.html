@@ -442,7 +442,6 @@
   </nav>
 
   <section>
-    <!-- Session guard / badge -->
     <div id="guardBanner" style="display:none; max-width:700px; margin:0 auto 1rem;
     background:#fef2f2; border:1px solid #fca5a5; border-radius:12px;
     padding:0.8rem 1.5rem; color:#dc2626; font-size:0.9rem; text-align:center;">
@@ -545,7 +544,6 @@
     let detectionActive = false, updateInterval, finalResults = null;
     let testDuration = 30, startTimestamp = null;
 
-    // ── Session badge ───────────────────────────────────
     const patientId = sessionStorage.getItem('patient_id');
     const patientName = sessionStorage.getItem('patient_name');
     if (!patientId) {
@@ -621,10 +619,8 @@
         desc.textContent = `${count} blinks detected. Below expected range - consultation recommended.`;
       }
 
-      // ── Save to database ──
       const saveStatus = document.getElementById('saveStatus');
 
-      // Set session flags
       sessionStorage.setItem('blink_done', '1');
       sessionStorage.setItem('blink_count', count);
 
