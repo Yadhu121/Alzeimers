@@ -47,8 +47,7 @@
             padding: 2rem 1rem;
             cursor: none;
         }
-
-        /* Navbar */
+ 
         .navbar {
             position: fixed;
             top: 0;
@@ -109,7 +108,6 @@
             transform: translateY(-2px);
         }
 
-        /* Hero heading */
         .page-header {
             text-align: center;
             margin-top: 6rem;
@@ -162,7 +160,6 @@
             margin: 0 auto;
         }
 
-        /* Card */
         .card {
             background: var(--glass-bg);
             backdrop-filter: blur(14px);
@@ -175,7 +172,6 @@
             max-width: 680px;
         }
 
-        /* Form */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -227,7 +223,6 @@
             color: #aab;
         }
 
-        /* Submit */
         .submit-btn {
             width: 100%;
             padding: 1.1rem;
@@ -277,7 +272,6 @@
             }
         }
 
-        /* Error */
         .error-msg {
             display: none;
             background: rgba(239, 68, 68, 0.08);
@@ -293,7 +287,6 @@
             display: block;
         }
 
-        /* Steps bar */
         .steps {
             display: flex;
             align-items: center;
@@ -461,17 +454,12 @@
     </div>
 
     <script>
-        // Pre-fill today's date
         document.getElementById('visitDate').value = new Date().toISOString().split('T')[0];
 
-        // If coming from Re-register link OR no session yet, allow form
-        // If session exists AND not explicitly re-registering, skip form
         const isReregister = new URLSearchParams(window.location.search).get('reregister') === '1';
         if (isReregister) {
-            // Clear all session data so the new patient starts fresh
             sessionStorage.clear();
         } else if (sessionStorage.getItem('patient_id')) {
-            // Redirect based on test progress
             if (sessionStorage.getItem('blink_done') !== '1') {
                 window.location.href = 'blink_detection.html';
             } else if (sessionStorage.getItem('typing_done') !== '1') {

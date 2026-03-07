@@ -41,7 +41,6 @@
             cursor: none;
         }
 
-        /* Navbar */
         .navbar {
             position: fixed;
             top: 0;
@@ -102,7 +101,6 @@
             transform: translateY(-2px);
         }
 
-        /* Header */
         .page-header {
             text-align: center;
             margin-top: 6.5rem;
@@ -155,7 +153,6 @@
             margin: 0 auto;
         }
 
-        /* Steps */
         .steps {
             display: flex;
             align-items: center;
@@ -221,7 +218,6 @@
             background: #34A853;
         }
 
-        /* Cards grid */
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -321,7 +317,6 @@
             color: #15803d;
         }
 
-        /* Footer note */
         .footer-note {
             margin-top: 2.5rem;
             text-align: center;
@@ -329,7 +324,6 @@
             font-size: 0.82rem;
         }
 
-        /* Done card overlay */
         .test-card.done {
             border-color: rgba(52, 168, 83, 0.5);
             background: rgba(240, 253, 244, 0.9);
@@ -360,7 +354,6 @@
             border: 2px solid #34A853;
         }
 
-        /* Results CTA bar */
         .results-cta {
             display: none;
             margin-top: 2.5rem;
@@ -400,7 +393,6 @@
             transform: translateY(-2px);
         }
 
-        /* Card icon image sizing */
         .card-icon svg {
             width: 44px;
             height: 44px;
@@ -446,7 +438,6 @@
         <p>Both mandatory tests are complete. You can view your results or optionally take the MRI scan.</p>
     </div>
 
-    <!-- Progress steps -->
     <div class="steps">
         <div class="step done">
             <div class="step-dot">✓</div>
@@ -471,11 +462,10 @@
 
     <div class="cards-grid">
 
-        <!-- Blink Detection -->
         <a href="blink_detection.html" class="test-card" id="card-blink">
             <span class="done-badge">✓ Completed · Retake</span>
             <div class="card-icon blink">
-                <!-- Eye SVG -->
+
                 <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <ellipse cx="24" cy="24" rx="20" ry="11" stroke="#b45309" stroke-width="2.5" fill="none" />
                     <circle cx="24" cy="24" r="6.5" fill="#b45309" opacity="0.18" />
@@ -497,11 +487,10 @@
             <span class="card-badge blink">~30 seconds • Mandatory</span>
         </a>
 
-        <!-- MRI Upload -->
         <a href="upload.html" class="test-card" id="card-mri">
             <span class="done-badge">✓ Completed · Retake</span>
             <div class="card-icon mri">
-                <!-- Brain SVG -->
+
                 <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M24 10 C16 10 10 16 10 22 C10 26 12 29 15 31 C15 35 18 38 22 38 L26 38 C30 38 33 35 33 31 C36 29 38 26 38 22 C38 16 32 10 24 10Z"
@@ -520,11 +509,10 @@
             <span class="card-badge mri">Upload required • Optional</span>
         </a>
 
-        <!-- Typing Speed -->
         <a href="typing_test.html" class="test-card" id="card-typing">
             <span class="done-badge">✓ Completed · Retake</span>
             <div class="card-icon type">
-                <!-- Keyboard SVG -->
+
                 <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="6" y="16" width="36" height="22" rx="4" stroke="#15803d" stroke-width="2.2"
                         fill="rgba(52,168,83,0.08)" />
@@ -551,7 +539,6 @@
 
     </div>
 
-    <!-- Results CTA: always shown since mandatory tests are done -->
     <div class="results-cta" id="resultsCta">
         <p>🎉 Great job! You’ve completed both mandatory assessments. View your results or take the optional MRI scan.
         </p>
@@ -563,7 +550,7 @@
     </div>
 
     <script>
-        // Guard: must be registered
+
         const patientId = sessionStorage.getItem('patient_id');
         const patientName = sessionStorage.getItem('patient_name');
 
@@ -574,7 +561,6 @@
             badge.textContent = 'Welcome, ' + patientName;
         }
 
-        // Guard: redirect to mandatory tests if not done
         const blinkDone = sessionStorage.getItem('blink_done') === '1';
         const typingDone = sessionStorage.getItem('typing_done') === '1';
         const mriDone = sessionStorage.getItem('mri_done') === '1';
@@ -585,7 +571,6 @@
             window.location.href = 'typing_test.html';
         }
 
-        // Mark mandatory cards as done but still clickable for retaking
         document.getElementById('card-blink').classList.add('done');
         document.getElementById('card-typing').classList.add('done');
 
@@ -596,7 +581,6 @@
             document.getElementById('mriStepLine').classList.add('done');
         }
 
-        // Always show results CTA since mandatory tests are done
         document.getElementById('resultsCta').classList.add('visible');
     </script>
 </body>

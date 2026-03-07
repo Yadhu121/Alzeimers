@@ -10,3 +10,5 @@ __pycache__/
 # System
 .DS_Store
 .vscode/
+
+instance/app.db
