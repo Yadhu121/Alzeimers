@@ -72,7 +72,6 @@
             padding: 0 1.5rem;
         }
 
-        /* Login Overlay */
         #loginOverlay {
             position: fixed;
             inset: 0;
@@ -153,7 +152,6 @@
             transform: translateY(-2px);
         }
 
-        /* Dashboard Header */
         .dash-header {
             display: flex;
             justify-content: space-between;
@@ -195,7 +193,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Table */
         .table-container {
             background: white;
             border-radius: 24px;
@@ -254,19 +251,15 @@
             background: #dbeafe;
         }
 
-        /* MRI */
         .badge-b {
             color: #b45309;
             background: #fef3c7;
         }
 
-        /* Blink */
         .badge-t {
             color: #15803d;
             background: #dcfce7;
         }
-
-        /* Typing */
 
         .details-row {
             display: none;
@@ -445,7 +438,6 @@
         let allPatients = [];
         let currentAdminId = null;
 
-        // On load: check if admin exists and hide setup link if so
         (async function checkAdminExists() {
             try {
                 const res = await fetch('/admin_exists');
@@ -454,7 +446,7 @@
                     const hint = document.getElementById('setupHint');
                     if (hint) hint.style.display = 'none';
                 }
-            } catch (e) { /* ignore */ }
+            } catch (e) {}
         })();
 
         async function unlock() {
@@ -643,20 +635,18 @@
         }
 
         async function deletePatient(event, id, name) {
-            event.stopPropagation(); // Don't trigger row expand
+            event.stopPropagation();
             if (!confirm(`Delete patient "${name}" and all their test data? This cannot be undone.`)) return;
 
             try {
                 const res = await fetch(`/delete_patient/${id}`, { method: 'DELETE' });
                 if (!res.ok) throw new Error('Server error');
 
-                // Animate rows out
                 const mainRow = document.getElementById(`row-${id}`);
                 const detailRow = document.getElementById(`detail-${id}`);
                 if (mainRow) { mainRow.classList.add('deleting'); setTimeout(() => mainRow.remove(), 310); }
                 if (detailRow) { detailRow.classList.add('deleting'); setTimeout(() => detailRow.remove(), 310); }
 
-                // Update data and stats
                 allPatients = allPatients.filter(p => p.id !== id);
                 updateStats();
             } catch (e) {

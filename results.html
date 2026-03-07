@@ -234,7 +234,7 @@
     </div>
 
     <div class="results-grid">
-        <!-- Blink Card -->
+
         <div class="result-card" id="resBlink">
             <div class="card-title">
                 <div class="badge-icon">👁️</div>
@@ -244,7 +244,6 @@
             <div id="blinkData" class="result-detail">No data recorded.</div>
         </div>
 
-        <!-- MRI Card -->
         <div class="result-card" id="resMri">
             <div class="card-title">
                 <div class="badge-icon">🧠</div>
@@ -254,7 +253,6 @@
             <div id="mriData" class="result-detail">No scan uploaded yet.</div>
         </div>
 
-        <!-- Typing Card -->
         <div class="result-card" id="resType">
             <div class="card-title">
                 <div class="badge-icon">⌨️</div>
@@ -264,7 +262,6 @@
             <div id="typeData" class="result-detail">Assessment not completed.</div>
         </div>
 
-        <!-- Summary -->
         <div class="summary-card">
             <h2>Overall Assessment</h2>
             <p id="combinedSummary">Complete all three tests for a comprehensive AI-powered neurological analysis. Your
@@ -280,7 +277,7 @@
     </div>
 
     <script>
-        // Guard: must have completed mandatory tests
+
         const blinkDoneCheck = sessionStorage.getItem('blink_done') === '1';
         const typingDoneCheck = sessionStorage.getItem('typing_done') === '1';
         if (!blinkDoneCheck) {
@@ -292,7 +289,6 @@
         const pName = sessionStorage.getItem('patient_name') || 'Patient';
         document.getElementById('patientGreeting').textContent = `Comprehensive results for ${pName}`;
 
-        // Blink
         if (sessionStorage.getItem('blink_done') === '1') {
             document.getElementById('blinkStatus').textContent = 'Completed';
             document.getElementById('blinkStatus').className = 'status-badge done';
@@ -302,7 +298,6 @@
             document.getElementById('blinkData').innerHTML = blinkHtml;
         }
 
-        // MRI
         if (sessionStorage.getItem('mri_done') === '1') {
             document.getElementById('mriStatus').textContent = 'Completed';
             document.getElementById('mriStatus').className = 'status-badge done';
@@ -314,7 +309,6 @@
             document.getElementById('mriData').innerHTML = 'Not taken yet. <a href="upload.html" style="color:#1d4ed8;font-weight:600;">Take MRI Scan (Optional)</a>';
         }
 
-        // Typing
         if (sessionStorage.getItem('typing_done') === '1') {
             document.getElementById('typeStatus').textContent = 'Completed';
             document.getElementById('typeStatus').className = 'status-badge done';
@@ -324,7 +318,6 @@
 
             let typeHtml = `Speed: <strong>${wpm} WPM</strong><br>Accuracy: <strong>${acc}%</strong>`;
 
-            // Only show risk details if risk data exists
             if (riskScore && riskScore !== 'null' && riskScore !== 'undefined') {
                 const riskLevel = sessionStorage.getItem('typing_risk_level') || '';
                 const backspaces = sessionStorage.getItem('typing_backspaces') || '0';
@@ -490,7 +483,6 @@
             URL.revokeObjectURL(url);
         }
 
-        // Final text
         const total = (sessionStorage.getItem('blink_done') === '1' ? 1 : 0) +
             (sessionStorage.getItem('mri_done') === '1' ? 1 : 0) +
             (sessionStorage.getItem('typing_done') === '1' ? 1 : 0);

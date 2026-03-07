@@ -16,11 +16,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-
-# ─────────────────────────────────────────
-#  DATABASE MODELS
-# ─────────────────────────────────────────
-
+# Database models
 class Patient(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200))
@@ -77,10 +73,7 @@ class Admin(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
-# ─────────────────────────────────────────
-#  MODEL LOADING
-# ─────────────────────────────────────────
-
+# Model loading
 try:
     model = YOLO('best.pt')
     print("Model loaded successfully")
@@ -93,11 +86,7 @@ blink_detector = BlinkDetector()
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-
-# ─────────────────────────────────────────
-#  STATIC FILE SERVING
-# ─────────────────────────────────────────
-
+# Static file serving
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
@@ -110,11 +99,7 @@ def serve_file(filepath):
     except Exception:
         return "File not found", 404
 
-
-# ─────────────────────────────────────────
-#  ADMIN LOGIN
-# ─────────────────────────────────────────
-
+# Admin login
 @app.route('/admin_login', methods=['POST'])
 def admin_login():
     """Verify admin credentials."""
@@ -161,7 +146,6 @@ def register_admin():
 
     existing = Admin.query.first()
     if existing:
-        # Only allow if an authenticated admin is adding a new one
         admin_id = data.get('admin_id')
         if not admin_id:
             return jsonify({'error': 'Admin account already exists. Log in to add more admins.'}), 403
@@ -169,7 +153,6 @@ def register_admin():
         if not requesting_admin:
             return jsonify({'error': 'Invalid admin session.'}), 403
 
-    # Check for duplicate email
     dup = Admin.query.filter(db.func.lower(Admin.email) == email).first()
     if dup:
         return jsonify({'error': 'An admin with this email already exists.'}), 409
@@ -182,11 +165,7 @@ def register_admin():
     db.session.commit()
     return jsonify({'status': 'created', 'admin_id': admin.id})
 
-
-# ─────────────────────────────────────────
-#  PATIENT REGISTRATION
-# ─────────────────────────────────────────
-
+# Patient registration
 @app.route('/login_patient', methods=['POST'])
 def login_patient():
     """Look up a patient by email and return their id and name."""
@@ -200,7 +179,6 @@ def login_patient():
     if not email or not password:
         return jsonify({'error': 'Email and Password are required'}), 400
 
-    # Find the most recent patient with this email that has a password set
     p = Patient.query.filter(
         db.func.lower(Patient.email) == email,
         Patient.password.isnot(None),
@@ -208,7 +186,6 @@ def login_patient():
     ).order_by(Patient.id.desc()).first()
 
     if not p:
-        # Check if there's an account without a password (legacy)
         legacy = Patient.query.filter(db.func.lower(Patient.email) == email).first()
         if legacy:
             return jsonify({'error': 'Your account was created before passwords were required. Please re-register with a password.'}), 401
@@ -249,10 +226,7 @@ def register_patient():
     return jsonify({'patient_id': patient.id, 'name': patient.name})
 
 
-# ─────────────────────────────────────────
-#  ADMIN – GET ALL PATIENTS
-# ─────────────────────────────────────────
-
+# Admin - get all patients
 @app.route('/get_patients', methods=['GET'])
 def get_patients():
     """Return all patients with their test results."""
@@ -356,7 +330,6 @@ def delete_patient(patient_id):
     """Delete a patient and all their associated test results."""
     p = Patient.query.get_or_404(patient_id)
     try:
-        # Cascade delete child records first (synchronize_session=False avoids session conflicts)
         BlinkResult.query.filter_by(patient_id=patient_id).delete(synchronize_session=False)
         TypingResult.query.filter_by(patient_id=patient_id).delete(synchronize_session=False)
         Scan.query.filter_by(patient_id=patient_id).delete(synchronize_session=False)
@@ -367,11 +340,7 @@ def delete_patient(patient_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
-
-# ─────────────────────────────────────────
-#  MRI PREDICTION
-# ─────────────────────────────────────────
-
+# MRI prediction
 @app.route('/predict', methods=['POST'])
 def predict():
     if not model:
@@ -387,7 +356,6 @@ def predict():
         scan_date = data.get('scan_date', datetime.utcnow().strftime('%Y-%m-%d'))
         image_base64 = data.get('image')
 
-        # If patient_id not provided, create an anonymous patient record
         if not patient_id:
             name = data.get('name', 'Anonymous')
             email = data.get('email', '')
@@ -428,11 +396,7 @@ def predict():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-# ─────────────────────────────────────────
-#  BLINK DETECTION
-# ─────────────────────────────────────────
-
+# Blink detection
 @app.route('/start_blink_detection', methods=['POST'])
 def start_blink_detection():
     try:
@@ -490,11 +454,7 @@ def save_blink_result():
     db.session.commit()
     return jsonify({'status': 'saved', 'id': result.id})
 
-
-# ─────────────────────────────────────────
-#  TYPING TEST
-# ─────────────────────────────────────────
-
+# Typing test
 @app.route('/save_typing_result', methods=['POST'])
 def save_typing_result():
     """Save completed typing test results linked to a patient."""
@@ -521,14 +481,9 @@ def save_typing_result():
     db.session.commit()
     return jsonify({'status': 'saved', 'id': result.id})
 
-
-# ─────────────────────────────────────────
-#  ENTRY POINT
-# ─────────────────────────────────────────
-
+# Entry point
 if __name__ == '__main__':
     with app.app_context():
-        # Migrations for existing databases
         for col in ['password']:
             try:
                 db.session.execute(db.text(f'ALTER TABLE patient ADD COLUMN {col} VARCHAR(255)'))
