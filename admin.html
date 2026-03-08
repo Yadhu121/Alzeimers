@@ -446,7 +446,7 @@
                     const hint = document.getElementById('setupHint');
                     if (hint) hint.style.display = 'none';
                 }
-            } catch (e) {}
+            } catch (e) { }
         })();
 
         async function unlock() {
@@ -510,7 +510,6 @@
                 errEl.style.display = 'block';
                 return;
             }
-
             try {
                 const res = await fetch('/register_admin', {
                     method: 'POST',
@@ -713,7 +712,6 @@
                 msgEl.style.display = 'block';
                 return;
             }
-
             try {
                 const res = await fetch('/register_admin', {
                     method: 'POST',

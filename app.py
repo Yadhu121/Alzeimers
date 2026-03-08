@@ -205,7 +205,11 @@ def register_patient():
         return jsonify({'error': 'No data provided'}), 400
 
     name = data.get('name', '').strip()
+    password = data.get('password', '')
     phone = data.get('phone', '').strip()
+
+    if not name or not password:
+        return jsonify({'error': 'Name and Password are required'}), 400
 
     if phone and (not phone.isdigit() or len(phone) != 10):
         return jsonify({'error': 'Phone number must be exactly 10 digits.'}), 400
