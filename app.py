@@ -205,11 +205,16 @@ def register_patient():
         return jsonify({'error': 'No data provided'}), 400
 
     name = data.get('name', '').strip()
+    email = data.get('email', '').strip().lower()
     password = data.get('password', '')
     phone = data.get('phone', '').strip()
 
-    if not name or not password:
-        return jsonify({'error': 'Name and Password are required'}), 400
+    if not name or not password or not email:
+        return jsonify({'error': 'Name, Email and Password are required'}), 400
+
+    existing_patient = Patient.query.filter(db.func.lower(Patient.email) == email).first()
+    if existing_patient:
+        return jsonify({'error': 'An account with this email already exists.'}), 409
 
     if phone and (not phone.isdigit() or len(phone) != 10):
         return jsonify({'error': 'Phone number must be exactly 10 digits.'}), 400
