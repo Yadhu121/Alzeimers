@@ -1,0 +1,511 @@
+from flask import Flask, request, jsonify, send_from_directory
+from flask_sqlalchemy import SQLAlchemy
+from ultralytics import YOLO
+from PIL import Image
+import io
+import base64
+import os
+import uuid
+from datetime import datetime
+from blink_model import BlinkDetector
+from werkzeug.security import generate_password_hash, check_password_hash
+
+app = Flask(__name__, static_folder='.', static_url_path='')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+# Database models
+class Patient(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200))
+    age = db.Column(db.Integer)
+    gender = db.Column(db.String(20))
+    email = db.Column(db.String(200))
+    password = db.Column(db.String(255), nullable=True)
+    phone = db.Column(db.String(50))
+    address = db.Column(db.String(500))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    scans = db.relationship('Scan', backref='patient', lazy=True)
+    blink_results = db.relationship('BlinkResult', backref='patient', lazy=True)
+    typing_results = db.relationship('TypingResult', backref='patient', lazy=True)
+
+
+class Scan(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'))
+    file_path = db.Column(db.String(300))
+    scan_type = db.Column(db.String(100))
+    scan_date = db.Column(db.String(50))
+    predicted_class = db.Column(db.String(100))
+    confidence = db.Column(db.Float)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class BlinkResult(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'))
+    blink_count = db.Column(db.Integer)
+    duration = db.Column(db.Float)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class TypingResult(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'))
+    wpm = db.Column(db.Float)
+    accuracy = db.Column(db.Float)
+    test_text = db.Column(db.Text)
+    risk_score = db.Column(db.Integer)
+    backspace_count = db.Column(db.Integer)
+    pause_count = db.Column(db.Integer)
+    hesitation_count = db.Column(db.Integer)
+    avg_key_delay = db.Column(db.Integer)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class Admin(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(200), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+# Model loading
+try:
+    model = YOLO('best.pt')
+    print("Model loaded successfully")
+except Exception as e:
+    print(f"Error loading model: {e}")
+    model = None
+
+blink_detector = BlinkDetector()
+
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Static file serving
+@app.route('/')
+def index():
+    return send_from_directory('.', 'index.html')
+
+
+@app.route('/<path:filepath>')
+def serve_file(filepath):
+    try:
+        return send_from_directory('.', filepath)
+    except Exception:
+        return "File not found", 404
+
+# Admin login
+@app.route('/admin_login', methods=['POST'])
+def admin_login():
+    """Verify admin credentials."""
+    data = request.json
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    email = data.get('email', '').strip().lower()
+    password = data.get('password', '')
+
+    if not email or not password:
+        return jsonify({'error': 'Email and Password are required'}), 400
+
+    admin = Admin.query.filter(db.func.lower(Admin.email) == email).first()
+    if not admin or not check_password_hash(admin.password, password):
+        return jsonify({'error': 'Invalid admin credentials.'}), 401
+
+    return jsonify({'status': 'ok', 'admin_id': admin.id})
+
+
+@app.route('/admin_exists', methods=['GET'])
+def admin_exists():
+    """Check whether at least one admin account exists."""
+    exists = Admin.query.first() is not None
+    return jsonify({'exists': exists})
+
+
+@app.route('/register_admin', methods=['POST'])
+def register_admin():
+    """Register a new admin account.
+    - If no admin exists yet, anyone can create the first one (setup).
+    - If an admin already exists, the request must include a valid admin_id
+      (i.e. an existing admin is adding a new one from the dashboard).
+    """
+    data = request.json
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    email = data.get('email', '').strip().lower()
+    password = data.get('password', '')
+
+    if not email or not password:
+        return jsonify({'error': 'Email and Password are required'}), 400
+
+    existing = Admin.query.first()
+    if existing:
+        admin_id = data.get('admin_id')
+        if not admin_id:
+            return jsonify({'error': 'Admin account already exists. Log in to add more admins.'}), 403
+        requesting_admin = Admin.query.get(admin_id)
+        if not requesting_admin:
+            return jsonify({'error': 'Invalid admin session.'}), 403
+
+    dup = Admin.query.filter(db.func.lower(Admin.email) == email).first()
+    if dup:
+        return jsonify({'error': 'An admin with this email already exists.'}), 409
+
+    admin = Admin(
+        email=email,
+        password=generate_password_hash(password)
+    )
+    db.session.add(admin)
+    db.session.commit()
+    return jsonify({'status': 'created', 'admin_id': admin.id})
+
+# Patient registration
+@app.route('/login_patient', methods=['POST'])
+def login_patient():
+    """Look up a patient by email and return their id and name."""
+    data = request.json
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    email = data.get('email', '').strip().lower()
+    password = data.get('password', '')
+
+    if not email or not password:
+        return jsonify({'error': 'Email and Password are required'}), 400
+
+    p = Patient.query.filter(
+        db.func.lower(Patient.email) == email,
+        Patient.password.isnot(None),
+        Patient.password != ''
+    ).order_by(Patient.id.desc()).first()
+
+    if not p:
+        legacy = Patient.query.filter(db.func.lower(Patient.email) == email).first()
+        if legacy:
+            return jsonify({'error': 'Your account was created before passwords were required. Please re-register with a password.'}), 401
+        return jsonify({'error': 'No account found with that email. Please register first.'}), 404
+
+    if not check_password_hash(p.password, password):
+        return jsonify({'error': 'Invalid email or password.'}), 401
+
+    return jsonify({'patient_id': p.id, 'name': p.name})
+
+
+@app.route('/register_patient', methods=['POST'])
+def register_patient():
+    """Register a new patient and return their patient_id."""
+    data = request.json
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    name = data.get('name', '').strip()
+    email = data.get('email', '').strip().lower()
+    password = data.get('password', '')
+    phone = data.get('phone', '').strip()
+
+    if not name or not password or not email:
+        return jsonify({'error': 'Name, Email and Password are required'}), 400
+
+    existing_patient = Patient.query.filter(db.func.lower(Patient.email) == email).first()
+    if existing_patient:
+        return jsonify({'error': 'An account with this email already exists.'}), 409
+
+    if phone and (not phone.isdigit() or len(phone) != 10):
+        return jsonify({'error': 'Phone number must be exactly 10 digits.'}), 400
+
+    hashed_password = generate_password_hash(password)
+
+    patient = Patient(
+        name=name,
+        age=data.get('age'),
+        gender=data.get('gender', ''),
+        email=data.get('email', ''),
+        password=hashed_password,
+        phone=phone,
+        address=data.get('address', '')
+    )
+    db.session.add(patient)
+    db.session.commit()
+
+    return jsonify({'patient_id': patient.id, 'name': patient.name})
+
+
+# Admin - get all patients
+@app.route('/get_patients', methods=['GET'])
+def get_patients():
+    """Return all patients with their test results."""
+    patients = Patient.query.order_by(Patient.created_at.desc()).all()
+    result = []
+    for p in patients:
+        scans = [{
+            'id': s.id,
+            'scan_type': s.scan_type,
+            'scan_date': s.scan_date,
+            'predicted_class': s.predicted_class,
+            'confidence': round(s.confidence * 100, 1) if s.confidence else None,
+            'created_at': s.created_at.strftime('%Y-%m-%d %H:%M') if s.created_at else ''
+        } for s in p.scans]
+
+        blinks = [{
+            'id': b.id,
+            'blink_count': b.blink_count,
+            'duration': b.duration,
+            'created_at': b.created_at.strftime('%Y-%m-%d %H:%M') if b.created_at else ''
+        } for b in p.blink_results]
+
+        typings = [{
+            'id': t.id,
+            'wpm': t.wpm,
+            'accuracy': t.accuracy,
+            'risk_score': t.risk_score,
+            'backspace_count': t.backspace_count,
+            'pause_count': t.pause_count,
+            'hesitation_count': t.hesitation_count,
+            'avg_key_delay': t.avg_key_delay,
+            'created_at': t.created_at.strftime('%Y-%m-%d %H:%M') if t.created_at else ''
+        } for t in p.typing_results]
+
+        result.append({
+            'id': p.id,
+            'name': p.name,
+            'age': p.age,
+            'gender': p.gender,
+            'email': p.email,
+            'phone': p.phone,
+            'address': p.address,
+            'registered_at': p.created_at.strftime('%Y-%m-%d %H:%M') if p.created_at else '',
+            'scans': scans,
+            'blink_results': blinks,
+            'typing_results': typings
+        })
+
+    return jsonify(result)
+
+
+@app.route('/get_patient/<int:patient_id>', methods=['GET'])
+def get_patient(patient_id):
+    """Return details for a single patient including all test history."""
+    p = Patient.query.get_or_404(patient_id)
+    scans = [{
+        'id': s.id,
+        'scan_type': s.scan_type,
+        'scan_date': s.scan_date,
+        'predicted_class': s.predicted_class,
+        'confidence': round(s.confidence * 100, 1) if s.confidence else None,
+        'created_at': s.created_at.strftime('%d %b %Y, %H:%M') if s.created_at else ''
+    } for s in p.scans]
+
+    blinks = [{
+        'id': b.id,
+        'blink_count': b.blink_count,
+        'duration': b.duration,
+        'created_at': b.created_at.strftime('%d %b %Y, %H:%M') if b.created_at else ''
+    } for b in p.blink_results]
+
+    typings = [{
+        'id': t.id,
+        'wpm': t.wpm,
+        'accuracy': t.accuracy,
+        'risk_score': t.risk_score,
+        'backspace_count': t.backspace_count,
+        'pause_count': t.pause_count,
+        'hesitation_count': t.hesitation_count,
+        'avg_key_delay': t.avg_key_delay,
+        'created_at': t.created_at.strftime('%d %b %Y, %H:%M') if t.created_at else ''
+    } for t in p.typing_results]
+
+    return jsonify({
+        'id': p.id,
+        'name': p.name,
+        'age': p.age,
+        'gender': p.gender,
+        'email': p.email,
+        'phone': p.phone,
+        'address': p.address,
+        'registered_at': p.created_at.strftime('%d %b %Y, %H:%M') if p.created_at else '',
+        'scans': scans,
+        'blink_results': blinks,
+        'typing_results': typings
+    })
+
+
+@app.route('/delete_patient/<int:patient_id>', methods=['DELETE'])
+def delete_patient(patient_id):
+    """Delete a patient and all their associated test results."""
+    p = Patient.query.get_or_404(patient_id)
+    try:
+        BlinkResult.query.filter_by(patient_id=patient_id).delete(synchronize_session=False)
+        TypingResult.query.filter_by(patient_id=patient_id).delete(synchronize_session=False)
+        Scan.query.filter_by(patient_id=patient_id).delete(synchronize_session=False)
+        db.session.delete(p)
+        db.session.commit()
+        return jsonify({'status': 'deleted', 'id': patient_id})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+# MRI prediction
+@app.route('/predict', methods=['POST'])
+def predict():
+    if not model:
+        return jsonify({'error': 'Model not loaded'}), 500
+
+    data = request.json
+    if not data or 'image' not in data:
+        return jsonify({'error': 'No image data provided'}), 400
+
+    try:
+        patient_id = data.get('patient_id')
+        scan_type = data.get('scan_type', 'MRI')
+        scan_date = data.get('scan_date', datetime.utcnow().strftime('%Y-%m-%d'))
+        image_base64 = data.get('image')
+
+        if not patient_id:
+            name = data.get('name', 'Anonymous')
+            email = data.get('email', '')
+            phone = data.get('phone', '')
+            patient = Patient(name=name, email=email, phone=phone)
+            db.session.add(patient)
+            db.session.commit()
+            patient_id = patient.id
+
+        image_data = image_base64.split(',')[1]
+        image_bytes = base64.b64decode(image_data)
+
+        filename = f"{uuid.uuid4()}.png"
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+
+        with open(file_path, "wb") as f:
+            f.write(image_bytes)
+
+        img = Image.open(io.BytesIO(image_bytes))
+        results = model.predict(source=img, verbose=False)
+        probs = results[0].probs
+        predicted_class = results[0].names[probs.top1]
+        confidence = float(probs.top1conf)
+
+        scan = Scan(
+            patient_id=patient_id,
+            file_path=file_path,
+            scan_type=scan_type,
+            scan_date=scan_date,
+            predicted_class=predicted_class,
+            confidence=confidence
+        )
+        db.session.add(scan)
+        db.session.commit()
+
+        return jsonify({'class': predicted_class, 'confidence': confidence})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Blink detection
+@app.route('/start_blink_detection', methods=['POST'])
+def start_blink_detection():
+    try:
+        success = blink_detector.start()
+        if success:
+            return jsonify({'status': 'started'})
+        else:
+            return jsonify({'status': 'error', 'error': 'Failed to start camera'}), 500
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 500
+
+
+@app.route('/get_blink_stats', methods=['GET'])
+def get_blink_stats():
+    try:
+        stats = blink_detector.get_stats()
+        frame_base64 = blink_detector.get_current_frame_base64()
+        return jsonify({
+            'blink_count': stats['blink_count'],
+            'time_remaining': stats['time_remaining'],
+            'completed': stats['completed'],
+            'frame': frame_base64
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/stop_blink_detection', methods=['POST'])
+def stop_blink_detection():
+    try:
+        blink_detector.stop()
+        results = blink_detector.get_final_results()
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/save_blink_result', methods=['POST'])
+def save_blink_result():
+    """Save completed blink test results linked to a patient."""
+    data = request.json
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    patient_id = data.get('patient_id')
+    if not patient_id:
+        return jsonify({'error': 'patient_id required'}), 400
+
+    result = BlinkResult(
+        patient_id=patient_id,
+        blink_count=data.get('blink_count', 0),
+        duration=data.get('duration', 0)
+    )
+    db.session.add(result)
+    db.session.commit()
+    return jsonify({'status': 'saved', 'id': result.id})
+
+# Typing test
+@app.route('/save_typing_result', methods=['POST'])
+def save_typing_result():
+    """Save completed typing test results linked to a patient."""
+    data = request.json
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    patient_id = data.get('patient_id')
+    if not patient_id:
+        return jsonify({'error': 'patient_id required'}), 400
+
+    result = TypingResult(
+        patient_id=patient_id,
+        wpm=data.get('wpm', 0),
+        accuracy=data.get('accuracy', 0),
+        test_text=data.get('test_text', ''),
+        risk_score=data.get('risk_score'),
+        backspace_count=data.get('backspace_count'),
+        pause_count=data.get('pause_count'),
+        hesitation_count=data.get('hesitation_count'),
+        avg_key_delay=data.get('avg_key_delay')
+    )
+    db.session.add(result)
+    db.session.commit()
+    return jsonify({'status': 'saved', 'id': result.id})
+
+# Entry point
+if __name__ == '__main__':
+    with app.app_context():
+        for col in ['password']:
+            try:
+                db.session.execute(db.text(f'ALTER TABLE patient ADD COLUMN {col} VARCHAR(255)'))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+        for col in ['risk_score', 'backspace_count', 'pause_count', 'hesitation_count', 'avg_key_delay']:
+            try:
+                db.session.execute(db.text(f'ALTER TABLE typing_result ADD COLUMN {col} INTEGER'))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+        db.create_all()
+
+    app.run(debug=True, use_reloader=False, port=5000)
