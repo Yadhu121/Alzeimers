@@ -205,9 +205,10 @@ def register_patient():
         return jsonify({'error': 'No data provided'}), 400
 
     name = data.get('name', '').strip()
-    password = data.get('password', '')
-    if not name or not password:
-        return jsonify({'error': 'Name and Password are required'}), 400
+    phone = data.get('phone', '').strip()
+
+    if phone and (not phone.isdigit() or len(phone) != 10):
+        return jsonify({'error': 'Phone number must be exactly 10 digits.'}), 400
 
     hashed_password = generate_password_hash(password)
 
@@ -217,7 +218,7 @@ def register_patient():
         gender=data.get('gender', ''),
         email=data.get('email', ''),
         password=hashed_password,
-        phone=data.get('phone', ''),
+        phone=phone,
         address=data.get('address', '')
     )
     db.session.add(patient)
